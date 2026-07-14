@@ -1,16 +1,30 @@
-export default function Home() {
+import Image from "next/image";
+
+async function getMovies() {
+  const res = await fetch("http://localhost:3000/api/movies", {
+    cache: "no-store",
+  });
+
+  const movies = await res.json();
+
+  return movies;
+}
+
+export default async function Home() {
+  const movies = await getMovies();
+
   return (
     <main className="min-h-screen bg-black text-white">
 
-      {/* Navigation */}
-      <nav className="flex items-center justify-between p-6">
-        <img
+      <nav className="flex justify-between items-center p-6">
+        <Image
           src="/images/logo.png"
           alt="NIPFLIX Logo"
-          className="w-40"
+          width={160}
+          height={60}
         />
 
-        <div className="flex gap-6 text-lg">
+        <div className="flex gap-6">
           <span>Home</span>
           <span>Movies</span>
           <span>TV Shows</span>
@@ -18,54 +32,59 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+
       <section className="p-8 mt-10">
         <h1 className="text-6xl font-bold">
           Unlimited Movies & Shows
         </h1>
 
-        <p className="mt-5 text-xl text-gray-300 max-w-xl">
+        <p className="mt-5 text-gray-300">
           Watch your favorite entertainment anytime, anywhere with NIPFLIX.
         </p>
 
         <div className="mt-8 flex gap-4">
-          <button className="bg-white text-black px-8 py-3 rounded font-bold">
+          <button className="bg-white text-black px-8 py-3 rounded">
             ▶ Play
           </button>
 
-          <button className="bg-gray-600 px-8 py-3 rounded font-bold">
+          <button className="bg-gray-600 px-8 py-3 rounded">
             More Info
           </button>
         </div>
       </section>
-{/* Movie Rows */}
-<section className="px-8 pb-10">
 
-  <h2 className="text-3xl font-bold mb-5">
-    Trending Now
-  </h2>
 
-  <div className="flex gap-5 overflow-x-auto">
+      <section className="px-8 pb-10">
 
-    <div className="bg-gray-800 rounded-lg w-48 h-72 flex items-center justify-center">
-      Movie 1
-    </div>
+        <h2 className="text-3xl font-bold mb-5">
+          Trending Now
+        </h2>
 
-    <div className="bg-gray-800 rounded-lg w-48 h-72 flex items-center justify-center">
-      Movie 2
-    </div>
 
-    <div className="bg-gray-800 rounded-lg w-48 h-72 flex items-center justify-center">
-      Movie 3
-    </div>
+        <div className="flex gap-5 overflow-x-auto">
 
-    <div className="bg-gray-800 rounded-lg w-48 h-72 flex items-center justify-center">
-      Movie 4
-    </div>
+          {movies.map((movie: any) => (
+            <div key={movie.id} className="min-w-48">
 
-  </div>
+              <Image
+                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                alt={movie.title}
+                width={192}
+                height={288}
+                className="rounded-lg object-cover"
+              />
 
-</section>
+              <h3 className="mt-2 font-bold">
+                {movie.title}
+              </h3>
+
+            </div>
+          ))}
+
+        </div>
+
+      </section>
+
     </main>
   );
 }
