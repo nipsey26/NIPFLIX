@@ -1,128 +1,210 @@
-import Image from "next/image";
 import Link from "next/link";
-import { searchMovies } from "@/app/tmdb";
+import Image from "next/image";
+
+import {
+  searchMovies,
+} from "@/app/tmdb";
+
+import {
+  getDatabaseMovies,
+} from "@/app/lib/database";
+
+
 
 
 export default async function SearchPage({
+
   searchParams,
-}: {
-  searchParams: Promise<{ query?: string }>;
-}) {
+
+}:{
+
+  searchParams:Promise<{
+    q?:string;
+  }>;
+
+}){
 
 
-  const { query } = await searchParams;
+  const {
+    q=""
+  } =
+  await searchParams;
 
 
-  const movies = query
-    ? await searchMovies(query)
-    : [];
+
+
+  const localMovies =
+    getDatabaseMovies();
+
+
+
+
+
+  const tmdbMovies =
+    await searchMovies(q);
+
+
+
+
+
+
+
+  const results = [
+
+    ...localMovies.filter(
+      (movie:any)=>
+
+      movie.title
+      .toLowerCase()
+      .includes(
+        q.toLowerCase()
+      )
+
+    ),
+
+
+    ...tmdbMovies
+
+  ];
+
+
+
+
 
 
 
   return (
 
-    <main className="min-h-screen bg-black text-white p-8">
+    <main className="
+    min-h-screen
+    bg-black
+    text-white
+    pt-24
+    px-6
+    md:px-12
+    ">
 
 
-      <h1 className="text-5xl font-bold mb-3">
-        Search Results
+
+      <h1 className="
+      text-4xl
+      font-black
+      mb-8
+      ">
+
+        Search NIPFLIX
+
       </h1>
 
 
-      {query && (
-
-        <p className="text-gray-400 text-xl mb-8">
-          Results for: "{query}"
-        </p>
-
-      )}
 
 
 
+      <form>
 
-      {!query && (
+        <input
 
-        <p className="text-gray-400 text-xl">
-          Search for a movie.
-        </p>
+          name="q"
 
-      )}
+          placeholder="Search movies..."
 
+          defaultValue={q}
 
+          className="
+          bg-neutral-900
+          p-4
+          rounded-lg
+          w-full
+          max-w-xl
+          "
 
+        />
 
-      {query && movies.length === 0 && (
-
-        <p className="text-gray-400 text-xl">
-          No movies found.
-        </p>
-
-      )}
+      </form>
 
 
 
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
 
 
-        {movies.map((movie:any) => (
+
+      <div className="
+      grid
+      grid-cols-2
+      md:grid-cols-5
+      gap-6
+      mt-10
+      ">
+
+
+
+
+        {results.map((movie:any)=>(
+
+
 
           <Link
-            href={`/movie/${movie.id}`}
+
             key={movie.id}
-            className="group"
+
+            href={`/movie/${movie.id}`}
+
           >
 
 
-            <div className="overflow-hidden rounded-lg">
 
+
+            {movie.poster || movie.poster_path ? (
 
               <Image
 
                 src={
-                  movie.poster_path
-                    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                    : "/images/logo.png"
+
+                  movie.poster ||
+
+                  `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+
                 }
 
-                alt={movie.title || "Movie Poster"}
+                alt={movie.title}
 
-                width={200}
+                width={220}
 
-                height={300}
+                height={330}
 
-                className="rounded-lg object-cover transition duration-300 group-hover:scale-110"
+                className="
+                rounded-xl
+                "
 
               />
 
-
-            </div>
-
+            ):null}
 
 
-            <h2 className="mt-3 font-bold text-lg">
+
+
+            <h2 className="
+            mt-3
+            font-bold
+            ">
+
               {movie.title}
+
             </h2>
 
 
 
-            <p className="text-gray-400 text-sm mt-1">
-              ⭐ {movie.vote_average?.toFixed(1) || "N/A"}
-            </p>
-
-
-
-            <p className="text-gray-400 text-sm">
-              📅 {movie.release_date?.slice(0,4) || "Unknown"}
-            </p>
-
-
           </Link>
+
 
         ))}
 
 
+
+
       </div>
+
+
 
 
     </main>

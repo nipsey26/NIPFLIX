@@ -1,60 +1,115 @@
-import Image from "next/image";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { prisma } from "@/app/lib/prisma";
-import { verifySession } from "@/app/lib/auth";
-import RemoveFromList from "@/app/components/RemoveFromList";
+import Image from "next/image";
+
+import { prisma } from "../lib/prisma";
+import { getCurrentUser } from "../lib/getUser";
 
 
 export default async function MyListPage() {
 
-  const cookieStore = await cookies();
 
-  const session = cookieStore.get("session")?.value;
+  const user = await getCurrentUser();
 
 
-  if (!session) {
+
+  if (!user) {
+
     return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-4xl font-bold">
-          Please login to view My List
-        </h1>
+
+      <main className="
+      min-h-screen
+      bg-black
+      text-white
+      flex
+      items-center
+      justify-center
+      ">
+
+        <div className="text-center">
+
+          <h1 className="
+          text-5xl
+          font-black
+          mb-6
+          ">
+            My List
+          </h1>
+
+
+          <p className="
+          text-gray-400
+          mb-8
+          ">
+            Sign in to save your favorite movies.
+          </p>
+
+
+          <Link
+            href="/login"
+            className="
+            bg-red-600
+            px-8
+            py-3
+            rounded-lg
+            font-bold
+            "
+          >
+            Sign In
+          </Link>
+
+
+        </div>
+
+
       </main>
+
     );
+
   }
 
 
-  const payload = await verifySession(session);
-
-
-  if (!payload?.userId) {
-    return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-4xl font-bold">
-          Invalid session
-        </h1>
-      </main>
-    );
-  }
 
 
   const movies = await prisma.myList.findMany({
+
     where: {
-      userId: payload.userId as string,
+
+      userId: user.id,
+
     },
+
     orderBy: {
+
       createdAt: "desc",
+
     },
+
   });
+
 
 
 
   return (
 
-    <main className="min-h-screen bg-black text-white p-8">
+    <main
+      className="
+      min-h-screen
+      bg-black
+      text-white
+      px-6
+      md:px-12
+      py-24
+      "
+    >
 
 
-      <h1 className="text-5xl font-bold mb-10">
+      <h1
+        className="
+        text-5xl
+        font-black
+        mb-12
+        "
+      >
         My List
       </h1>
 
@@ -62,64 +117,130 @@ export default async function MyListPage() {
 
       {movies.length === 0 ? (
 
-        <p className="text-gray-400 text-xl">
-          Your list is empty.
-        </p>
 
-      ) : (
+        <div className="
+        text-center
+        py-24
+        ">
 
-
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-
-
-          {movies.map((movie) => (
-
-            <div
-              key={movie.id}
-              className="group"
-            >
-
-
-              <Link
-                href={`/movie/${movie.movieId}`}
-              >
-
-
-                <Image
-                  src={
-                    movie.posterPath
-                      ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
-                      : "/images/logo.png"
-                  }
-                  alt={movie.title}
-                  width={200}
-                  height={300}
-                  className="rounded-lg object-cover group-hover:scale-105 transition"
-                />
-
-
-                <h2 className="mt-3 font-bold">
-                  {movie.title}
-                </h2>
-
-
-              </Link>
-
-
-              <RemoveFromList movieId={movie.movieId} />
-
-
-            </div>
-
-          ))}
+          <p className="
+          text-gray-400
+          text-xl
+          ">
+            Your list is empty.
+          </p>
 
 
         </div>
 
+
+
+      ) : (
+
+
+        <div
+          className="
+          grid
+          grid-cols-2
+          md:grid-cols-4
+          lg:grid-cols-6
+          gap-6
+          "
+        >
+
+
+          {movies.map((movie:any)=>(
+
+
+            <Link
+
+              key={movie.id}
+
+              href={`/movie/${movie.mediaId}`}
+
+              className="group"
+
+            >
+
+
+              <div
+                className="
+                relative
+                aspect-[2/3]
+                overflow-hidden
+                rounded-xl
+                bg-neutral-900
+                "
+              >
+
+
+                {movie.posterPath ? (
+
+                  <Image
+
+                    src={
+                      `https://image.tmdb.org/t/p/w500${movie.posterPath}`
+                    }
+
+                    alt={movie.title}
+
+                    fill
+
+                    className="
+                    object-cover
+                    group-hover:scale-105
+                    transition
+                    "
+
+                  />
+
+                ) : (
+
+                  <div className="
+                  flex
+                  items-center
+                  justify-center
+                  h-full
+                  text-gray-500
+                  ">
+                    No Image
+                  </div>
+
+                )}
+
+
+              </div>
+
+
+
+              <p
+                className="
+                mt-3
+                font-bold
+                truncate
+                "
+              >
+                {movie.title}
+              </p>
+
+
+
+            </Link>
+
+
+          ))}
+
+
+
+        </div>
+
+
       )}
+
 
 
     </main>
 
   );
+
 }

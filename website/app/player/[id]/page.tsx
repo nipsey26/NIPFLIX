@@ -1,87 +1,231 @@
 import Link from "next/link";
-import {
-  getMovieDetails,
-  getMovieTrailer,
-} from "@/app/tmdb";
+import Image from "next/image";
+import { prisma } from "@/app/lib/prisma";
+import Player from "./Player";
+
+
 
 export default async function PlayerPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
 
-  const movie = await getMovieDetails(id);
-  const trailer = await getMovieTrailer(id);
+  params,
+
+}: {
+
+  params: Promise<{
+    id:string;
+  }>;
+
+}) {
+
+
+  const { id } =
+    await params;
+
+
+
+  const movie =
+    await prisma.movie.findUnique({
+
+      where:{
+        id,
+      },
+
+    });
+
+
+
+
+
+  if(!movie){
+
+
+    return (
+
+      <main className="
+      min-h-screen
+      bg-black
+      text-white
+      flex
+      items-center
+      justify-center
+      ">
+
+
+        <h1 className="
+        text-4xl
+        font-black
+        ">
+
+        Movie Not Found
+
+        </h1>
+
+
+      </main>
+
+    );
+
+  }
+
+
+
+
+
 
   return (
-    <main className="min-h-screen bg-black text-white">
 
-      <div className="flex justify-between items-center p-6">
+    <main className="
+    min-h-screen
+    bg-black
+    text-white
+    pb-20
+    ">
+
+
+      <div className="
+      p-6
+      ">
+
 
         <Link
-          href={`/movie/${id}`}
-          className="bg-gray-700 px-5 py-2 rounded"
+
+        href="/"
+
+        className="
+        text-gray-300
+        "
+
         >
-          ← Back
+
+        ← Back
+
         </Link>
 
-        <h1 className="text-2xl font-bold">
-          {movie.title}
-        </h1>
 
       </div>
 
-      <div className="max-w-6xl mx-auto px-6">
 
-        {trailer ? (
 
-          <div className="aspect-video rounded-lg overflow-hidden">
 
-            <iframe
-              src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1`}
-              title={movie.title}
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-              className="w-full h-full"
-            />
 
-          </div>
 
-        ) : (
 
-          <div className="bg-gray-900 rounded-lg h-[600px] flex items-center justify-center">
+      <section className="
+      px-6
+      ">
 
-            <h2 className="text-3xl">
-              No trailer available.
-            </h2>
 
-          </div>
+        <div className="
+        max-w-6xl
+        mx-auto
+        aspect-video
+        bg-black
+        rounded-xl
+        overflow-hidden
+        ">
 
-        )}
 
-        <div className="mt-8">
+          <Player
 
-          <h2 className="text-4xl font-bold">
-            {movie.title}
-          </h2>
+          movie={movie}
 
-          <p className="text-gray-400 mt-4">
-            {movie.overview}
-          </p>
+          />
 
-          <p className="mt-6">
-            ⭐ {movie.vote_average}
-          </p>
-
-          <p>
-            📅 {movie.release_date}
-          </p>
 
         </div>
 
-      </div>
+
+      </section>
+
+
+
+
+
+
+
+
+      <section className="
+      max-w-6xl
+      mx-auto
+      px-6
+      mt-10
+      flex
+      flex-col
+      md:flex-row
+      gap-8
+      ">
+
+
+
+        <Image
+
+        src={movie.poster}
+
+        alt={movie.title}
+
+        width={240}
+
+        height={360}
+
+        className="
+        rounded-xl
+        object-cover
+        "
+
+        />
+
+
+
+
+
+        <div>
+
+
+          <h1 className="
+          text-5xl
+          font-black
+          ">
+
+          {movie.title}
+
+          </h1>
+
+
+
+          <p className="
+          text-gray-400
+          mt-4
+          ">
+
+          {movie.category} • {movie.year}
+
+          </p>
+
+
+
+
+          <p className="
+          text-gray-300
+          mt-6
+          text-lg
+          ">
+
+          {movie.description}
+
+          </p>
+
+
+
+
+        </div>
+
+
+      </section>
+
+
 
     </main>
+
   );
+
 }

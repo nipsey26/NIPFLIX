@@ -1,94 +1,241 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
-  const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
+export default function LoginPage(){
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
 
-    const data = await res.json();
+  const router =
+    useRouter();
 
-    if (!res.ok) {
-      setMessage(data.error || "Login failed");
-      return;
+
+  const [email,setEmail] =
+    useState("");
+
+
+
+  const [password,setPassword] =
+    useState("");
+
+
+
+  const [message,setMessage] =
+    useState("");
+
+
+
+
+
+  async function login(){
+
+
+
+    const result =
+      await signIn(
+
+        "credentials",
+
+        {
+
+          email,
+
+          password,
+
+          redirect:false
+
+        }
+
+      );
+
+
+
+
+
+    if(result?.error){
+
+
+      setMessage(
+        "Invalid email or password"
+      );
+
+
+    } else {
+
+
+      router.push("/");
+
+
     }
 
-    setMessage("Login successful! Redirecting...");
 
-    setTimeout(() => {
-      router.push("/");
-    }, 1500);
   }
 
+
+
+
+
+
+
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center">
 
-      <div className="w-full max-w-md bg-gray-900 p-8 rounded-lg">
+    <main className="
+    min-h-screen
+    bg-black
+    text-white
+    flex
+    items-center
+    justify-center
+    p-6
+    ">
 
-        <h1 className="text-4xl font-bold mb-6 text-center">
-          Login
+
+
+      <div className="
+      bg-neutral-900
+      p-8
+      rounded-xl
+      w-full
+      max-w-md
+      ">
+
+
+
+        <h1 className="
+        text-4xl
+        font-black
+        mb-6
+        ">
+
+        Login to NIPFLIX
+
         </h1>
 
-        <form
-          onSubmit={handleLogin}
-          className="flex flex-col gap-4"
+
+
+
+
+        <input
+
+        placeholder="Email"
+
+        type="email"
+
+        onChange={
+          e=>setEmail(
+            e.target.value
+          )
+        }
+
+        className="
+        w-full
+        bg-black
+        p-3
+        rounded-lg
+        mb-4
+        "
+
+        />
+
+
+
+
+
+
+
+        <input
+
+        placeholder="Password"
+
+        type="password"
+
+        onChange={
+          e=>setPassword(
+            e.target.value
+          )
+        }
+
+        className="
+        w-full
+        bg-black
+        p-3
+        rounded-lg
+        mb-4
+        "
+
+        />
+
+
+
+
+
+
+
+        <button
+
+        onClick={login}
+
+        className="
+        w-full
+        bg-red-600
+        py-3
+        rounded-lg
+        font-black
+        "
+
         >
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="p-3 rounded bg-gray-800 text-white"
-          />
+        Login
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="p-3 rounded bg-gray-800 text-white"
-          />
+        </button>
 
-          <button
-            type="submit"
-            className="bg-red-600 hover:bg-red-700 p-3 rounded font-bold"
-          >
-            Login
-          </button>
 
-        </form>
 
-        {message && (
-          <p className="text-center mt-4 text-gray-300">
-            {message}
-          </p>
-        )}
 
-        <p className="text-gray-400 mt-5 text-center">
-          Don't have an account? Sign Up
+
+        <p className="
+        text-red-400
+        mt-4
+        ">
+
+        {message}
+
         </p>
+
+
+
+
+
+
+        <Link
+
+        href="/register"
+
+        className="
+        block
+        mt-5
+        text-gray-300
+        "
+
+        >
+
+        Don't have an account? Register
+
+        </Link>
+
+
+
 
       </div>
 
+
+
     </main>
+
   );
+
 }

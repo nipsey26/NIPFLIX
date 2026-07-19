@@ -9,215 +9,300 @@ import {
   getUpcomingMovies,
 } from "./tmdb";
 
-import ContinueWatching from "./components/ContinueWatching";
-import { prisma } from "./lib/prisma";
-import { getCurrentUser } from "./lib/getUser";
+
+import MovieCard from "./components/MovieCard";
 
 
-function MovieRow({
+import {
+  getPublishedMovies,
+  getFeaturedMovies,
+  getMoviesByCategory,
+} from "./lib/database";
+
+
+
+
+
+function Row({
   title,
   movies,
-}: {
-  title: string;
-  movies: any[];
-}) {
+}:{
+  title:string;
+  movies:any[];
+}){
+
+
+  if(!movies || movies.length === 0){
+
+    return null;
+
+  }
+
+
 
   return (
-    <section className="px-8 pb-10">
 
-      <h2 className="text-3xl font-bold mb-5">
+    <section className="
+    px-6
+    md:px-12
+    mb-12
+    ">
+
+
+      <h2 className="
+      text-3xl
+      font-black
+      mb-6
+      ">
+
         {title}
+
       </h2>
 
-      <div className="flex gap-5 overflow-x-auto">
 
-        {movies.map((movie) => (
 
-          <Link
-            href={`/movie/${movie.id}`}
-            key={movie.id}
-            className="min-w-[192px] group"
-          >
 
-            <Image
-              src={
-                movie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                  : "/images/logo.png"
-              }
-              alt={movie.title || "Movie Poster"}
-              width={192}
-              height={288}
-              className="rounded-lg object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+      <div className="
+      flex
+      gap-5
+      overflow-x-auto
+      pb-3
+      ">
 
-            <h3 className="mt-3 font-bold">
-              {movie.title}
-            </h3>
 
-            <p className="text-gray-400 text-sm">
-              ⭐ {movie.vote_average?.toFixed(1)}
-            </p>
+        {movies.map((movie:any)=>(
 
-          </Link>
+
+          <MovieCard
+
+          key={movie.id}
+
+          movie={movie}
+
+          />
+
 
         ))}
 
+
       </div>
 
+
+
     </section>
+
   );
 
 }
 
 
 
-export default async function Home() {
-
-  const user = await getCurrentUser();
-
-  const trending = await getTrendingMovies();
-  const popular = await getPopularMovies();
-  const topRated = await getTopRatedMovies();
-  const nowPlaying = await getNowPlayingMovies();
-  const upcoming = await getUpcomingMovies();
 
 
-  let continueWatching: any[] = [];
 
 
-  if (user) {
-
-    continueWatching = await prisma.watchProgress.findMany({
-
-      where: {
-        userId: user.id,
-      },
-
-      orderBy: {
-        updatedAt: "desc",
-      },
-
-      take: 10,
-
-    });
-
-  }
 
 
-  const featured = trending[0];
+export default async function Home(){
+
+
+
+  const [
+
+    trending,
+
+    popular,
+
+    topRated,
+
+    nowPlaying,
+
+    upcoming,
+
+    databaseMovies,
+
+    featuredMovies,
+
+    actionMovies,
+
+    horrorMovies,
+
+    comedyMovies,
+
+
+  ] = await Promise.all([
+
+
+    getTrendingMovies(),
+
+    getPopularMovies(),
+
+    getTopRatedMovies(),
+
+    getNowPlayingMovies(),
+
+    getUpcomingMovies(),
+
+
+    getPublishedMovies(),
+
+    getFeaturedMovies(),
+
+    getMoviesByCategory("Action"),
+
+    getMoviesByCategory("Horror"),
+
+    getMoviesByCategory("Comedy"),
+
+
+  ]);
+
+
+
+
+
+
+
+  const featured =
+
+    featuredMovies.length > 0
+
+    ? featuredMovies[0]
+
+    : trending?.[0];
+
+
+
+
+
+
+
 
 
   return (
 
-    <main className="min-h-screen bg-black text-white">
-
-
-      {/* NAVBAR */}
-
-      <nav className="relative z-20 p-6 flex justify-between items-center bg-black">
-
-        <Link href="/">
-          <Image
-            src="/images/logo.png"
-            alt="NIPFLIX Logo"
-            width={160}
-            height={60}
-          />
-        </Link>
-
-
-        <div className="flex items-center gap-4">
-
-
-          {user ? (
-
-            <>
-              <span className="font-bold text-lg">
-                Welcome, {user.name}
-              </span>
-
-              <Link
-                href="/profile"
-                className="bg-red-600 px-5 py-2 rounded font-bold hover:bg-red-700"
-              >
-                Profile
-              </Link>
-            </>
-
-          ) : (
-
-            <Link
-              href="/login"
-              className="bg-red-600 px-5 py-2 rounded font-bold hover:bg-red-700"
-            >
-              Login
-            </Link>
-
-          )}
-
-
-        </div>
-
-
-      </nav>
+    <main className="
+    min-h-screen
+    bg-black
+    text-white
+    ">
 
 
 
-      {/* HERO */}
+      {featured && (
 
 
-      <section className="relative h-[600px]">
+        <section className="
+        relative
+        h-[80vh]
+        ">
 
 
-        {featured?.backdrop_path && (
 
           <Image
 
-            src={`https://image.tmdb.org/t/p/original${featured.backdrop_path}`}
 
-            alt={featured.title || "Featured Movie"}
+          src={
 
-            fill
+            featured.backdrop
 
-            priority
+            ||
 
-            className="object-cover opacity-50"
+            `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
+
+          }
+
+
+          alt={featured.title}
+
+
+          fill
+
+
+          priority
+
+
+          className="
+          object-cover
+          "
+
 
           />
 
-        )}
 
 
 
-        <div className="relative p-8 pt-40 max-w-3xl">
 
-
-          <h1 className="text-6xl font-bold">
-
-            {featured?.title || "NIPFLIX"}
-
-          </h1>
-
-
-
-          <p className="mt-5 text-gray-300 text-lg">
-
-            {featured?.overview ||
-              "Unlimited movies and shows anytime, anywhere."}
-
-          </p>
+          <div className="
+          absolute
+          inset-0
+          bg-gradient-to-r
+          from-black
+          via-black/70
+          to-transparent
+          " />
 
 
 
-          <div className="mt-8 flex gap-4">
+
+
+
+
+          <div className="
+          absolute
+          bottom-20
+          left-6
+          md:left-16
+          max-w-2xl
+          ">
+
+
+            <h1 className="
+            text-5xl
+            md:text-7xl
+            font-black
+            ">
+
+
+              {featured.title}
+
+
+            </h1>
+
+
+
+
+
+            <p className="
+            mt-5
+            text-gray-200
+            line-clamp-4
+            ">
+
+
+              {featured.description || featured.overview}
+
+
+            </p>
+
+
+
 
 
             <Link
 
-              href={`/movie/${featured?.id}`}
+            href={`/player/${featured.id}`}
 
-              className="bg-white text-black px-8 py-3 rounded font-bold"
+            className="
+            inline-block
+            mt-8
+            bg-white
+            text-black
+            px-8
+            py-3
+            rounded-lg
+            font-black
+            "
 
             >
 
@@ -227,61 +312,143 @@ export default async function Home() {
 
 
 
-            <Link
-
-              href={`/movie/${featured?.id}`}
-
-              className="bg-gray-600 px-8 py-3 rounded"
-
-            >
-
-              More Info
-
-            </Link>
-
 
           </div>
 
 
-        </div>
 
 
-      </section>
+        </section>
+
+
+      )}
 
 
 
-      <ContinueWatching items={continueWatching} />
 
 
 
-      <MovieRow
-        title="Trending Now"
-        movies={trending}
+
+
+      <Row
+
+      title="🎬 NIPFLIX Library"
+
+      movies={databaseMovies}
+
       />
 
 
-      <MovieRow
-        title="Popular Movies"
-        movies={popular}
+
+
+
+      <Row
+
+      title="⭐ Featured"
+
+      movies={featuredMovies}
+
       />
 
 
-      <MovieRow
-        title="Top Rated Movies"
-        movies={topRated}
+
+
+
+      <Row
+
+      title="🔥 Action"
+
+      movies={actionMovies}
+
       />
 
 
-      <MovieRow
-        title="Now Playing"
-        movies={nowPlaying}
+
+
+
+      <Row
+
+      title="😂 Comedy"
+
+      movies={comedyMovies}
+
       />
 
 
-      <MovieRow
-        title="Upcoming Movies"
-        movies={upcoming}
+
+
+
+      <Row
+
+      title="👻 Horror"
+
+      movies={horrorMovies}
+
       />
+
+
+
+
+
+
+
+      <Row
+
+      title="Trending Now"
+
+      movies={trending}
+
+      />
+
+
+
+
+
+      <Row
+
+      title="Popular Movies"
+
+      movies={popular}
+
+      />
+
+
+
+
+
+      <Row
+
+      title="Top Rated"
+
+      movies={topRated}
+
+      />
+
+
+
+
+
+      <Row
+
+      title="Now Playing"
+
+      movies={nowPlaying}
+
+      />
+
+
+
+
+
+      <Row
+
+      title="Coming Soon"
+
+      movies={upcoming}
+
+      />
+
+
 
 
     </main>

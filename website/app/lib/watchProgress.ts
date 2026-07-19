@@ -1,58 +1,98 @@
-import prisma from "@/app/lib/prisma";
+import { prisma } from "@/app/lib/prisma";
 
 
 export async function saveWatchProgress({
+
   userId,
+
   mediaId,
-  mediaType,
-  progress = 0,
+
+  mediaType = "movie",
+
+  title,
+
+  posterPath,
+
+  overview,
+
+  progress,
+
 }: {
+
   userId: string;
+
   mediaId: string;
-  mediaType: string;
-  progress?: number;
+
+  mediaType?: string;
+
+  title: string;
+
+  posterPath?: string;
+
+  overview?: string;
+
+  progress: number;
+
 }) {
 
-  return await prisma.watchProgress.upsert({
+
+  const saved = await prisma.watchProgress.upsert({
+
 
     where: {
+
       userId_mediaId_mediaType: {
+
         userId,
+
         mediaId,
+
         mediaType,
+
       },
+
     },
+
+
 
     update: {
+
       progress,
+
+      title,
+
+      posterPath,
+
+      overview,
+
     },
+
+
 
     create: {
+
       userId,
+
       mediaId,
+
       mediaType,
+
+      title,
+
+      posterPath,
+
+      overview,
+
       progress,
+
     },
+
 
   });
 
-}
 
 
+  return saved;
 
-
-export async function getWatchProgress(userId: string) {
-
-  return await prisma.watchProgress.findMany({
-
-    where: {
-      userId,
-    },
-
-    orderBy: {
-      updatedAt: "desc",
-    },
-
-  });
 
 }

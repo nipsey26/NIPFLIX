@@ -1,51 +1,111 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/app/lib/prisma";
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
 
-    const {
-      userId,
-      mediaId,
-      mediaType,
-      progress,
-    } = body;
 
-    if (!userId || !mediaId || !mediaType) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+export async function POST(
+ request:Request
+){
 
-    const saved = await prisma.watchProgress.upsert({
-      where: {
-        userId_mediaId_mediaType: {
+ try{
+
+
+  const body =
+    await request.json();
+
+
+
+  const {
+
+    userId,
+
+    mediaId,
+
+    title,
+
+    posterPath,
+
+    overview,
+
+    progress,
+
+    mediaType
+
+  } = body;
+
+
+
+
+
+  const watch =
+    await prisma.watchProgress.upsert({
+
+      where:{
+
+        userId_mediaId_mediaType:{
+
           userId,
+
           mediaId,
-          mediaType,
-        },
+
+          mediaType
+
+        }
+
       },
-      update: {
-        progress,
+
+
+      update:{
+
+        progress
+
       },
-      create: {
+
+
+      create:{
+
         userId,
+
         mediaId,
+
         mediaType,
-        progress,
-      },
+
+        title,
+
+        posterPath,
+
+        overview,
+
+        progress
+
+      }
+
     });
 
-    return NextResponse.json(saved);
 
-  } catch (error) {
 
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
 
-  }
+
+  return NextResponse.json(watch);
+
+
+
+ }catch(error){
+
+
+  return NextResponse.json(
+
+    {
+      error:"Could not save progress"
+    },
+
+    {
+      status:500
+    }
+
+  );
+
+
+ }
+
 }

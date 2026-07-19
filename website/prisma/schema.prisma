@@ -8,13 +8,18 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
+  id String @id @default(cuid())
+
+  name String
+
+  email String @unique
+
+  password String
+
   createdAt DateTime @default(now())
 
-  myList        MyList[]
+  myList MyList[]
+
   watchProgress WatchProgress[]
 }
 
@@ -22,14 +27,18 @@ model MyList {
   id String @id @default(cuid())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  mediaId   String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mediaId String
+
   mediaType String
 
-  title      String
+  title String
+
   posterPath String?
-  overview   String?
+
+  overview String?
 
   createdAt DateTime @default(now())
 
@@ -40,19 +49,54 @@ model WatchProgress {
   id String @id @default(cuid())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  mediaId   String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mediaId String
+
   mediaType String
 
-  title      String
+  title String
+
   posterPath String?
-  overview   String?
+
+  overview String?
 
   progress Float @default(0)
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 
   @@unique([userId, mediaId, mediaType])
+}
+
+model Movie {
+  id String @id @default(cuid())
+
+  title String
+
+  description String?
+
+  poster String
+
+  backdrop String?
+
+  videoUrl String
+
+  category String?
+
+  year Int?
+
+  sourceType String @default("upload")
+
+  views Int @default(0)
+
+  featured Boolean @default(false)
+
+  published Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }
