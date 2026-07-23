@@ -4,12 +4,18 @@ import Link from "next/link";
 
 export default function Hero({
   movie,
-}: {
+}:{
   movie:any;
-}) {
+}){
 
 
   if(!movie) return null;
+
+
+  const background =
+    movie.backdrop ||
+    movie.poster ||
+    "/images/logo.png";
 
 
 
@@ -18,49 +24,33 @@ export default function Hero({
     <section
       className="
       relative
-      h-screen
-      min-h-[650px]
+      h-[75vh]
+      md:h-[85vh]
       overflow-hidden
       "
     >
 
 
+      <Image
 
-      {/* BACKGROUND */}
+        src={background}
 
-      {movie.backdrop_path && (
+        alt={movie.title}
 
-        <Image
+        fill
 
-          src={
-            `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-          }
+        priority
 
-          alt={
-            movie.title || "NIPFLIX"
-          }
+        sizes="100vw"
 
-          fill
+        className="
+        object-cover
+        "
 
-          priority
-
-          sizes="100vw"
-
-          className="
-          object-cover
-          scale-105
-          "
-
-        />
-
-      )}
+      />
 
 
 
-
-
-
-      {/* DARK CINEMATIC LAYERS */}
 
       <div
         className="
@@ -68,10 +58,11 @@ export default function Hero({
         inset-0
         bg-gradient-to-r
         from-black
-        via-black/70
+        via-black/60
         to-transparent
         "
       />
+
 
 
       <div
@@ -80,8 +71,7 @@ export default function Hero({
         inset-0
         bg-gradient-to-t
         from-black
-        via-black/20
-        to-transparent
+        via-transparent
         "
       />
 
@@ -89,188 +79,149 @@ export default function Hero({
 
 
 
-
-      {/* CONTENT */}
-
       <div
         className="
-        relative
-        z-10
-        h-full
-        flex
-        items-end
-        px-6
-        md:px-12
-        pb-28
+        absolute
+        bottom-20
+        left-6
+        md:bottom-16
+        max-w-3xl
         "
       >
 
 
+
+        <p
+          className="
+          text-red-600
+          tracking-[0.6em]
+          font-black
+          text-sm
+          md:text-lg
+          mb-5
+          "
+        >
+          NIPFLIX ORIGINAL
+        </p>
+
+
+
+
+
+        <h1
+          className="
+          text-5xl
+          md:text-8xl
+          font-black
+          leading-none
+          "
+        >
+
+          {movie.title}
+
+        </h1>
+
+
+
+
+
         <div
           className="
-          max-w-3xl
+          flex
+          gap-4
+          mt-6
+          text-gray-300
+          text-lg
+          "
+        >
+
+          {movie.year && (
+            <span>
+              {movie.year}
+            </span>
+          )}
+
+
+          {movie.category && (
+            <span>
+              • {movie.category}
+            </span>
+          )}
+
+        </div>
+
+
+
+
+
+
+        <p
+          className="
+          mt-6
+          text-gray-200
+          text-lg
+          md:text-xl
+          line-clamp-3
+          "
+        >
+
+          {movie.description}
+
+        </p>
+
+
+
+
+
+
+
+        <div
+          className="
+          flex
+          gap-4
+          mt-8
           "
         >
 
 
 
-
-          <p
+          <Link
+            href={`/movie/${movie.id}`}
             className="
-            text-red-500
+            bg-white
+            text-black
+            px-8
+            py-4
+            rounded-xl
             font-black
-            tracking-[5px]
-            mb-4
-            uppercase
-            "
-          >
-            NIPFLIX ORIGINAL
-          </p>
-
-
-
-
-
-          <h1
-            className="
-            text-5xl
-            md:text-7xl
-            font-black
-            leading-none
-            mb-6
-            "
-          >
-
-            {movie.title}
-
-          </h1>
-
-
-
-
-
-
-          <div
-            className="
-            flex
-            flex-wrap
-            gap-3
-            mb-6
-            "
-          >
-
-            <span
-              className="
-              bg-white/20
-              backdrop-blur
-              px-4
-              py-2
-              rounded-full
-              "
-            >
-              ⭐ {movie.vote_average?.toFixed(1) || "N/A"}
-            </span>
-
-
-            <span
-              className="
-              bg-white/20
-              backdrop-blur
-              px-4
-              py-2
-              rounded-full
-              "
-            >
-              {movie.release_date?.slice(0,4)}
-            </span>
-
-
-          </div>
-
-
-
-
-
-
-          <p
-            className="
-            text-gray-200
             text-lg
-            md:text-xl
-            leading-relaxed
-            mb-8
-            line-clamp-4
             "
           >
 
-            {movie.overview}
+            ▶ Play
 
-          </p>
-
-
+          </Link>
 
 
 
 
 
-          <div
+          <Link
+            href={`/movie/${movie.id}`}
             className="
-            flex
-            gap-4
-            flex-wrap
+            bg-white/20
+            backdrop-blur-md
+            px-8
+            py-4
+            rounded-xl
+            font-black
+            text-lg
             "
           >
 
+            ⓘ More Info
 
-
-            <Link
-
-              href={`/player/${movie.id}`}
-
-              className="
-              bg-white
-              text-black
-              px-8
-              py-3
-              rounded-lg
-              font-black
-              hover:bg-gray-200
-              transition
-              "
-            >
-
-              ▶ Play
-
-            </Link>
-
-
-
-
-
-            <Link
-
-              href={`/movie/${movie.id}`}
-
-              className="
-              bg-white/20
-              backdrop-blur
-              px-8
-              py-3
-              rounded-lg
-              font-black
-              hover:bg-white/30
-              transition
-              "
-            >
-
-              More Info
-
-            </Link>
-
-
-
-          </div>
-
+          </Link>
 
 
 
@@ -279,7 +230,9 @@ export default function Hero({
 
 
 
+
       </div>
+
 
 
 

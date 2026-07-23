@@ -8,37 +8,40 @@ datasource db {
 }
 
 model User {
-  id String @id @default(cuid())
-
-  name String
-
-  email String @unique
-
-  password String
-
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
 
-  myList MyList[]
-
+  profiles      Profile[]
+  myList        MyList[]
   watchProgress WatchProgress[]
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  name      String
+  avatar    String
+  kids      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MyList {
   id String @id @default(cuid())
 
   userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  mediaId String
-
+  mediaId   String
   mediaType String
 
-  title String
-
+  title      String
   posterPath String?
-
-  overview String?
+  overview   String?
 
   createdAt DateTime @default(now())
 
@@ -49,23 +52,18 @@ model WatchProgress {
   id String @id @default(cuid())
 
   userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  mediaId String
-
+  mediaId   String
   mediaType String
 
-  title String
-
+  title      String
   posterPath String?
-
-  overview String?
+  overview   String?
 
   progress Float @default(0)
 
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
 
   @@unique([userId, mediaId, mediaType])
@@ -82,13 +80,19 @@ model Movie {
 
   backdrop String?
 
-  videoUrl String
+  videoUrl String?
+
+  trailerUrl String?
 
   category String?
 
   year Int?
 
-  sourceType String @default("upload")
+  tmdbId String? @unique
+
+  sourceType String @default("tmdb")
+
+  available Boolean @default(false)
 
   views Int @default(0)
 
@@ -99,4 +103,25 @@ model Movie {
   createdAt DateTime @default(now())
 
   updatedAt DateTime @updatedAt
+}
+model SiteSettings {
+
+  id String @id @default(cuid())
+
+  siteName String @default("NIPFLIX")
+
+  description String?
+
+  logo String?
+
+  heroTitle String?
+
+  heroDescription String?
+
+  maintenance Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
 }

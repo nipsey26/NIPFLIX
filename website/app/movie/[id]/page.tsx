@@ -1,20 +1,13 @@
-import Link from "next/link";
-import Image from "next/image";
-
 import { prisma } from "@/app/lib/prisma";
+import Link from "next/link";
 
 
-
-export default async function MovieDetailsPage({
-
+export default async function MoviePage({
   params,
-
 }: {
-
   params: Promise<{
-    id:string;
+    id: string;
   }>;
-
 }) {
 
 
@@ -22,31 +15,22 @@ export default async function MovieDetailsPage({
 
 
 
-  const movie = await prisma.movie.findUnique({
+  const movie = await prisma.movie.findFirst({
 
-    where:{
-      id,
-    },
+    where: {
 
-  });
+      OR: [
 
+        {
+          id,
+        },
 
+        {
+          tmdbId:id,
+        },
 
+      ],
 
-
-  const relatedMovies = await prisma.movie.findMany({
-
-    where:{
-      category: movie?.category,
-      NOT:{
-        id,
-      },
-    },
-
-    take:8,
-
-    orderBy:{
-      createdAt:"desc",
     },
 
   });
@@ -60,22 +44,19 @@ export default async function MovieDetailsPage({
 
     return (
 
-      <main className="
-      min-h-screen
-      bg-black
-      text-white
-      flex
-      items-center
-      justify-center
-      ">
+      <main
+        className="
+        min-h-screen
+        bg-black
+        text-white
+        flex
+        items-center
+        justify-center
+        "
+      >
 
-        <h1 className="
-        text-4xl
-        font-black
-        ">
-
+        <h1 className="text-4xl font-black">
           Movie Not Found
-
         </h1>
 
       </main>
@@ -90,70 +71,135 @@ export default async function MovieDetailsPage({
 
 
 
+  const suggestions = await prisma.movie.findMany({
+
+    where: {
+
+      published:true,
+
+      category: movie.category
+        ? movie.category
+        : undefined,
+
+      NOT: {
+
+        id: movie.id,
+
+      },
+
+    },
+
+    take:12,
+
+    orderBy:{
+
+      createdAt:"desc",
+
+    },
+
+  });
+
+
+
+
+
+
   return (
 
-    <main className="
-    min-h-screen
-    bg-black
-    text-white
-    pb-20
-    ">
+    <main
+      className="
+      min-h-screen
+      bg-black
+      text-white
+      "
+    >
 
 
 
-      <section className="
-      relative
-      h-[70vh]
-      ">
 
 
-        {movie.poster && (
+      <section
+        className="
+        relative
+        h-[85vh]
+        overflow-hidden
+        "
+      >
 
-          <Image
 
-            src={movie.poster}
 
-            alt={movie.title}
+        <img
 
-            fill
+          src={
+            movie.backdrop ||
+            movie.poster ||
+            "/images/logo.png"
+          }
 
+          alt={movie.title}
+
+          className="
+          absolute
+          inset-0
+          w-full
+          h-full
+          object-cover
+          "
+
+        />
+
+
+
+
+
+        <div
+          className="
+          absolute
+          inset-0
+          bg-gradient-to-r
+          from-black
+          via-black/70
+          to-transparent
+          "
+        />
+
+
+
+        <div
+          className="
+          absolute
+          inset-0
+          bg-gradient-to-t
+          from-black
+          via-transparent
+          "
+        />
+
+
+
+
+
+
+
+        <div
+          className="
+          absolute
+          bottom-20
+          left-6
+          md:left-12
+          max-w-4xl
+          "
+        >
+
+
+
+          <h1
             className="
-            object-cover
+            text-5xl
+            md:text-8xl
+            font-black
             "
-
-          />
-
-        )}
-
-
-
-
-        <div className="
-        absolute
-        inset-0
-        bg-gradient-to-t
-        from-black
-        via-black/60
-        to-transparent
-        " />
-
-
-
-
-        <div className="
-        absolute
-        bottom-10
-        left-6
-        md:left-12
-        max-w-3xl
-        ">
-
-
-          <h1 className="
-          text-5xl
-          md:text-7xl
-          font-black
-          ">
+          >
 
             {movie.title}
 
@@ -161,22 +207,57 @@ export default async function MovieDetailsPage({
 
 
 
-          <p className="
-          mt-4
-          text-gray-300
-          ">
-
-            {movie.category} • {movie.year}
-
-          </p>
 
 
 
-          <p className="
-          mt-5
-          text-lg
-          text-gray-200
-          ">
+          <div
+            className="
+            flex
+            gap-5
+            mt-5
+            text-gray-300
+            "
+          >
+
+            {
+              movie.year && (
+
+                <span>
+                  {movie.year}
+                </span>
+
+              )
+            }
+
+
+            {
+              movie.category && (
+
+                <span>
+                  {movie.category}
+                </span>
+
+              )
+            }
+
+
+          </div>
+
+
+
+
+
+
+
+          <p
+            className="
+            mt-6
+            text-gray-200
+            text-lg
+            md:text-xl
+            max-w-3xl
+            "
+          >
 
             {movie.description}
 
@@ -186,30 +267,119 @@ export default async function MovieDetailsPage({
 
 
 
-          <Link
 
-            href={`/player/${movie.id}`}
 
+
+          <div
             className="
-            inline-block
+            flex
+            gap-5
             mt-8
-            bg-white
-            text-black
-            px-10
-            py-3
-            rounded-lg
-            font-black
             "
-
           >
 
-            ▶ Play Movie
 
-          </Link>
+
+
+            {
+              movie.videoUrl ? (
+
+                <Link
+
+                  href={`/player/${movie.id}`}
+
+                  className="
+                  bg-white
+                  text-black
+                  px-10
+                  py-5
+                  rounded-xl
+                  font-black
+                  text-xl
+                  "
+                >
+
+                  ▶ Play
+
+                </Link>
+
+              ) : (
+
+<Link
+
+href={`/player/${movie.id}`}
+
+className="
+bg-white
+text-black
+px-10
+py-5
+rounded-xl
+font-black
+text-xl
+flex
+items-center
+gap-3
+"
+
+>
+
+▶ Play
+
+</Link>
+
+              )
+
+            }
+
+
+
+
+
+
+
+
+            {
+              movie.trailerUrl && (
+
+                <a
+
+                  href={movie.trailerUrl}
+
+                  target="_blank"
+
+                  className="
+                  bg-white/20
+                  backdrop-blur
+                  px-10
+                  py-5
+                  rounded-xl
+                  font-black
+                  text-xl
+                  "
+                >
+
+                  Trailer
+
+                </a>
+
+              )
+            }
+
+
+
+
+
+          </div>
+
+
 
 
 
         </div>
+
+
+
 
 
       </section>
@@ -222,37 +392,48 @@ export default async function MovieDetailsPage({
 
 
 
-      {relatedMovies.length > 0 && (
-
-
-        <section className="
+      <section
+        className="
         px-6
         md:px-12
-        mt-12
-        ">
+        py-16
+        "
+      >
 
 
-          <h2 className="
+
+
+
+        <h2
+          className="
           text-3xl
           font-black
-          mb-6
-          ">
+          mb-8
+          "
+        >
 
-            More Like This
+          More Like This
 
-          </h2>
-
-
-
-
-          <div className="
-          flex
-          gap-5
-          overflow-x-auto
-          ">
+        </h2>
 
 
-            {relatedMovies.map((item)=>(
+
+
+
+
+        <div
+          className="
+          grid
+          grid-cols-2
+          md:grid-cols-4
+          lg:grid-cols-6
+          gap-6
+          "
+        >
+
+
+          {
+            suggestions.map((item)=>(
 
 
               <Link
@@ -261,36 +442,33 @@ export default async function MovieDetailsPage({
 
                 href={`/movie/${item.id}`}
 
-                className="
-                min-w-[180px]
-                "
-
               >
 
 
-                <Image
+                <img
 
                   src={item.poster}
 
                   alt={item.title}
 
-                  width={180}
-
-                  height={270}
-
                   className="
-                  rounded-xl
+                  rounded-2xl
+                  h-72
+                  w-full
                   object-cover
+                  hover:scale-105
+                  transition
                   "
 
                 />
 
 
-
-                <h3 className="
-                mt-3
-                font-bold
-                ">
+                <h3
+                  className="
+                  mt-3
+                  font-bold
+                  "
+                >
 
                   {item.title}
 
@@ -300,16 +478,19 @@ export default async function MovieDetailsPage({
               </Link>
 
 
-            ))}
+            ))
+          }
 
 
-          </div>
+
+        </div>
 
 
-        </section>
 
 
-      )}
+      </section>
+
+
 
 
 

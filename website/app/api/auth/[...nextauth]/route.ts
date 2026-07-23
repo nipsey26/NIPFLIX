@@ -6,38 +6,40 @@ import bcrypt from "bcryptjs";
 
 const handler = NextAuth({
 
-  providers:[
+  secret: process.env.AUTH_SECRET,
 
+
+  providers: [
 
     CredentialsProvider({
 
-      name:"Credentials",
+      name: "Credentials",
 
 
-      credentials:{
+      credentials: {
 
-        email:{
-          label:"Email",
-          type:"email"
+        email: {
+          label: "Email",
+          type: "email",
         },
 
 
-        password:{
-          label:"Password",
-          type:"password"
-        }
+        password: {
+          label: "Password",
+          type: "password",
+        },
 
       },
 
 
 
-      async authorize(credentials){
+      async authorize(credentials) {
 
 
-        if(
+        if (
           !credentials?.email ||
           !credentials?.password
-        ){
+        ) {
 
           return null;
 
@@ -48,21 +50,22 @@ const handler = NextAuth({
         const user =
           await prisma.user.findUnique({
 
-            where:{
-              email:
-              credentials.email
-            }
+            where: {
+              email: credentials.email,
+            },
 
           });
 
 
 
 
-        if(!user){
+
+        if (!user) {
 
           return null;
 
         }
+
 
 
 
@@ -80,7 +83,8 @@ const handler = NextAuth({
 
 
 
-        if(!passwordMatch){
+
+        if (!passwordMatch) {
 
           return null;
 
@@ -92,19 +96,19 @@ const handler = NextAuth({
 
         return {
 
-          id:user.id,
+          id: user.id,
 
-          name:user.name,
+          name: user.name,
 
-          email:user.email
+          email: user.email,
 
         };
 
 
-      }
+      },
 
 
-    })
+    }),
 
   ],
 
@@ -112,9 +116,9 @@ const handler = NextAuth({
 
 
 
-  session:{
+  session: {
 
-    strategy:"jwt"
+    strategy: "jwt",
 
   },
 
@@ -122,9 +126,52 @@ const handler = NextAuth({
 
 
 
-  pages:{
+  callbacks: {
 
-    signIn:"/login"
+
+    async jwt({ token, user }) {
+
+
+      if (user) {
+
+        token.id = user.id;
+
+      }
+
+
+      return token;
+
+    },
+
+
+
+
+    async session({ session, token }) {
+
+
+      if (session.user) {
+
+        session.user.id =
+          token.id as string;
+
+      }
+
+
+      return session;
+
+    },
+
+
+  },
+
+
+
+
+
+
+  pages: {
+
+    signIn: "/login",
 
   },
 
@@ -135,5 +182,5 @@ const handler = NextAuth({
 
 export {
   handler as GET,
-  handler as POST
+  handler as POST,
 };

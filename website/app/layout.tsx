@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "./providers";
+import NavbarWrapper from "./components/NavbarWrapper";
 
-import Navbar from "./components/Navbar";
 
 export const metadata: Metadata = {
   title: "NIPFLIX",
-  description: "Unlimited movies and shows anytime.",
+  description: "Unlimited entertainment.",
 };
 
 
 export default function RootLayout({
+
   children,
-}: {
+
+}:{
+
   children: React.ReactNode;
-}) {
+
+}){
+
 
   return (
 
@@ -21,15 +27,23 @@ export default function RootLayout({
 
       <body
         className="
-        min-h-screen
         bg-black
         text-white
+        min-h-screen
         "
       >
 
-        <Navbar user={null} />
+        <Providers>
 
-        {children}
+          <NavbarWrapper />
+
+          <div className="pt-24">
+
+            {children}
+
+          </div>
+
+        </Providers>
 
       </body>
 

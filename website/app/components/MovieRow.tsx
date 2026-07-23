@@ -1,13 +1,21 @@
+"use client";
+
 import MovieCard from "./MovieCard";
 
 
 export default function MovieRow({
+
   title,
+
   movies,
-}: {
+
+}:{
+
   title:string;
+
   movies:any[];
-}) {
+
+}){
 
 
   if(!movies || movies.length === 0){
@@ -20,109 +28,82 @@ export default function MovieRow({
 
     <section
       className="
-      relative
-      px-6
-      md:px-12
-      mb-14
+      mb-12
       "
     >
 
 
-
-      {/* TITLE */}
-
-      <h2
+      <div
         className="
-        text-2xl
-        md:text-3xl
-        font-black
-        mb-6
-        text-white
+        px-6
+        md:px-12
+        mb-5
+        flex
+        items-center
+        justify-between
         "
       >
 
-        {title}
 
-      </h2>
+        <h2
+          className="
+          text-2xl
+          md:text-3xl
+          font-black
+          "
+        >
+          {title}
+        </h2>
+
+
+        <span
+          className="
+          text-gray-400
+          text-sm
+          font-bold
+          hidden
+          md:block
+          "
+        >
+          See all →
+        </span>
+
+
+      </div>
 
 
 
 
-
-      {/* MOVIE SLIDER */}
 
       <div
         className="
-        relative
+        flex
+        gap-5
+        overflow-x-auto
+        px-6
+        md:px-12
+        pb-5
+        scrollbar-hide
         "
       >
 
 
-        <div
-          className="
-          flex
-          gap-5
-          overflow-x-auto
-          pb-4
-          scrollbar-hide
-          scroll-smooth
-          "
-        >
-
-
-          {movies.map((movie)=>(
+        {
+          movies.map((movie:any)=>(
 
             <MovieCard
 
-              key={movie.id}
+              key={
+                movie.id ||
+                movie.tmdbId
+              }
 
               movie={movie}
 
             />
 
-          ))}
-
-
-        </div>
-
-
-
-
-
-        {/* LEFT FADE */}
-
-        <div
-          className="
-          pointer-events-none
-          absolute
-          left-0
-          top-0
-          bottom-0
-          w-10
-          bg-gradient-to-r
-          from-black
-          to-transparent
-          "
-        />
-
-
-
-
-        {/* RIGHT FADE */}
-
-        <div
-          className="
-          pointer-events-none
-          absolute
-          right-0
-          top-0
-          bottom-0
-          w-10
-          bg-gradient-to-l
-          from-black
-          to-transparent
-          "
-        />
+          ))
+        }
 
 
       </div>

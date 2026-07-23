@@ -1,82 +1,86 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 
 export default function MovieCard({
   movie,
-}: {
+}:{
   movie:any;
-}) {
+}){
 
 
-  const image = movie.poster_path
+  const id =
+    movie.id ||
+    movie.tmdbId;
 
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
 
-    : movie.poster;
+
+  if(!id) return null;
+
+
+
+  const image =
+    movie.poster ||
+    movie.poster_path
+      ? (
+        movie.poster ||
+        `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      )
+      : "/images/logo.png";
+
+
 
 
 
   return (
 
     <Link
-
-      href={`/movie/${movie.id}`}
-
+      href={`/movie/${id}`}
       className="
-      min-w-[180px]
       group
+      min-w-[160px]
+      md:min-w-[220px]
       "
-
     >
 
 
-      <div className="
-      overflow-hidden
-      rounded-xl
-      bg-neutral-900
-      ">
+
+      <div
+        className="
+        overflow-hidden
+        rounded-2xl
+        bg-neutral-900
+        shadow-lg
+        "
+      >
 
 
-        {image ? (
+        <Image
 
-          <Image
+          src={image}
 
-            src={image}
+          alt={
+            movie.title ||
+            "Movie"
+          }
 
-            alt={movie.title}
+          width={300}
 
-            width={200}
+          height={450}
 
-            height={300}
+          className="
+          h-[240px]
+          md:h-[330px]
+          w-full
+          object-cover
+          transition
+          duration-500
+          group-hover:scale-110
+          "
 
-            className="
-            h-[270px]
-            w-[180px]
-            object-cover
-            group-hover:scale-105
-            transition
-            "
-
-          />
-
-        ) : (
-
-          <div className="
-          h-[270px]
-          w-[180px]
-          bg-neutral-800
-          flex
-          items-center
-          justify-center
-          text-gray-400
-          ">
-
-            No Poster
-
-          </div>
-
-        )}
+        />
 
 
       </div>
@@ -85,16 +89,35 @@ export default function MovieCard({
 
 
 
-      <h3 className="
-      mt-3
-      font-bold
-      text-white
-      truncate
-      ">
+      <h3
+        className="
+        mt-3
+        text-white
+        font-bold
+        text-base
+        line-clamp-2
+        "
+      >
 
         {movie.title}
 
       </h3>
+
+
+
+
+
+      <p
+        className="
+        text-gray-400
+        text-sm
+        mt-1
+        "
+      >
+
+        {movie.year || ""}
+
+      </p>
 
 
 

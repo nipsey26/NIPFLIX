@@ -1,176 +1,71 @@
-import Image from "next/image";
-import Link from "next/link";
+import { prisma } from "@/app/lib/prisma";
+import HomeClient from "./components/HomeClient";
 
-import {
-  getTrendingMovies,
-  getPopularMovies,
-  getTopRatedMovies,
-  getNowPlayingMovies,
-  getUpcomingMovies,
-} from "./tmdb";
 
+export default async function HomePage(){
 
-import MovieCard from "./components/MovieCard";
 
+  const movies = await prisma.movie.findMany({
 
-import {
-  getPublishedMovies,
-  getFeaturedMovies,
-  getMoviesByCategory,
-} from "./lib/database";
+    where:{
+      published:true,
+    },
 
+    orderBy:{
+      createdAt:"desc",
+    },
 
+  });
 
 
 
-function Row({
-  title,
-  movies,
-}:{
-  title:string;
-  movies:any[];
-}){
 
 
-  if(!movies || movies.length === 0){
+  const featured = await prisma.movie.findFirst({
 
-    return null;
+    where:{
+      published:true,
+      featured:true,
+    },
 
-  }
+    orderBy:{
+      createdAt:"desc",
+    },
 
+  });
 
 
-  return (
 
-    <section className="
-    px-6
-    md:px-12
-    mb-12
-    ">
 
 
-      <h2 className="
-      text-3xl
-      font-black
-      mb-6
-      ">
 
-        {title}
 
-      </h2>
+  const categories = {
 
+    action:
+      movies.filter((movie)=>
+        movie.category
+        ?.toLowerCase()
+        .includes("action")
+      ),
 
 
+    comedy:
+      movies.filter((movie)=>
+        movie.category
+        ?.toLowerCase()
+        .includes("comedy")
+      ),
 
-      <div className="
-      flex
-      gap-5
-      overflow-x-auto
-      pb-3
-      ">
 
+    horror:
+      movies.filter((movie)=>
+        movie.category
+        ?.toLowerCase()
+        .includes("horror")
+      ),
 
-        {movies.map((movie:any)=>(
-
-
-          <MovieCard
-
-          key={movie.id}
-
-          movie={movie}
-
-          />
-
-
-        ))}
-
-
-      </div>
-
-
-
-    </section>
-
-  );
-
-}
-
-
-
-
-
-
-
-
-
-export default async function Home(){
-
-
-
-  const [
-
-    trending,
-
-    popular,
-
-    topRated,
-
-    nowPlaying,
-
-    upcoming,
-
-    databaseMovies,
-
-    featuredMovies,
-
-    actionMovies,
-
-    horrorMovies,
-
-    comedyMovies,
-
-
-  ] = await Promise.all([
-
-
-    getTrendingMovies(),
-
-    getPopularMovies(),
-
-    getTopRatedMovies(),
-
-    getNowPlayingMovies(),
-
-    getUpcomingMovies(),
-
-
-    getPublishedMovies(),
-
-    getFeaturedMovies(),
-
-    getMoviesByCategory("Action"),
-
-    getMoviesByCategory("Horror"),
-
-    getMoviesByCategory("Comedy"),
-
-
-  ]);
-
-
-
-
-
-
-
-  const featured =
-
-    featuredMovies.length > 0
-
-    ? featuredMovies[0]
-
-    : trending?.[0];
-
+  };
 
 
 
@@ -181,277 +76,111 @@ export default async function Home(){
 
   return (
 
-    <main className="
-    min-h-screen
-    bg-black
-    text-white
-    ">
+    <HomeClient
 
 
+      featured={
+        featured || movies[0]
+      }
 
-      {featured && (
 
 
-        <section className="
-        relative
-        h-[80vh]
-        ">
 
 
+      databaseMovies={movies}
 
-          <Image
 
 
-          src={
 
-            featured.backdrop
 
-            ||
 
-            `https://image.tmdb.org/t/p/original${featured.backdrop_path}`
+      featuredMovies={
 
-          }
+        movies.filter(
+          movie=>movie.featured
+        )
 
+      }
 
-          alt={featured.title}
 
 
-          fill
 
 
-          priority
 
+      actionMovies={
 
-          className="
-          object-cover
-          "
+        categories.action
 
+      }
 
-          />
 
 
 
 
 
-          <div className="
-          absolute
-          inset-0
-          bg-gradient-to-r
-          from-black
-          via-black/70
-          to-transparent
-          " />
+      comedyMovies={
 
+        categories.comedy
 
+      }
 
 
 
 
 
-          <div className="
-          absolute
-          bottom-20
-          left-6
-          md:left-16
-          max-w-2xl
-          ">
 
+      horrorMovies={
 
-            <h1 className="
-            text-5xl
-            md:text-7xl
-            font-black
-            ">
+        categories.horror
 
+      }
 
-              {featured.title}
 
 
-            </h1>
 
 
 
 
+      trending={movies}
 
-            <p className="
-            mt-5
-            text-gray-200
-            line-clamp-4
-            ">
 
 
-              {featured.description || featured.overview}
 
 
-            </p>
 
+      popular={movies}
 
 
 
 
-            <Link
 
-            href={`/player/${featured.id}`}
 
-            className="
-            inline-block
-            mt-8
-            bg-white
-            text-black
-            px-8
-            py-3
-            rounded-lg
-            font-black
-            "
+      topRated={movies}
 
-            >
 
-              ▶ Play
 
-            </Link>
 
 
 
+      nowPlaying={movies}
 
-          </div>
 
 
 
 
-        </section>
 
+      upcoming={movies}
 
-      )}
 
 
 
 
 
+      continueWatching={[]}
 
 
 
-      <Row
-
-      title="🎬 NIPFLIX Library"
-
-      movies={databaseMovies}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="⭐ Featured"
-
-      movies={featuredMovies}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="🔥 Action"
-
-      movies={actionMovies}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="😂 Comedy"
-
-      movies={comedyMovies}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="👻 Horror"
-
-      movies={horrorMovies}
-
-      />
-
-
-
-
-
-
-
-      <Row
-
-      title="Trending Now"
-
-      movies={trending}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="Popular Movies"
-
-      movies={popular}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="Top Rated"
-
-      movies={topRated}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="Now Playing"
-
-      movies={nowPlaying}
-
-      />
-
-
-
-
-
-      <Row
-
-      title="Coming Soon"
-
-      movies={upcoming}
-
-      />
-
-
-
-
-    </main>
+    />
 
   );
 

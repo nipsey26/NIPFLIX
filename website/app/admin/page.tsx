@@ -1,615 +1,117 @@
-"use client";
+import { prisma } from "@/app/lib/prisma";
+import AdminImportMovies from "@/app/components/AdminImportMovies";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
+export default async function AdminDashboard() {
 
-
-type Movie = {
-
-  id:string;
-
-  title:string;
-
-  poster:string;
-
-  videoUrl:string;
-
-  category:string;
-
-  year:number;
-
-  featured:boolean;
-
-  published:boolean;
-
-};
+  const movieCount =
+    await prisma.movie.count();
 
 
+  const userCount =
+    await prisma.user.count();
 
 
-export default function AdminPage(){
-
-
-  const [movies,setMovies] =
-    useState<Movie[]>([]);
-
-
-
-  const [importTitle,setImportTitle] =
-    useState("");
-
-
-
-  const [message,setMessage] =
-    useState("");
-
-
-
-  const [form,setForm] =
-    useState({
-
-      title:"",
-      poster:"",
-      backdrop:"",
-      videoUrl:"",
-      description:"",
-      category:"",
-      year:""
-
+  const featuredCount =
+    await prisma.movie.count({
+      where:{
+        featured:true,
+      },
     });
 
 
-
-
-
-
-
-
-  async function loadMovies(){
-
-
-    const res =
-      await fetch(
-        "/api/admin/movies"
-      );
-
-
-    const data =
-      await res.json();
-
-
-    setMovies(data);
-
-
-  }
-
-
-
-
-
-
-  useEffect(()=>{
-
-    loadMovies();
-
-  },[]);
-
-
-
-
-
-
-
-
-
-  function update(
-    field:string,
-    value:string
-  ){
-
-
-    setForm({
-
-      ...form,
-
-      [field]:value
-
+  const availableCount =
+    await prisma.movie.count({
+      where:{
+        available:true,
+      },
     });
 
 
-  }
-
-
-
-
-
-
-
-
-
-  async function importMovie(){
-
-
-    const res =
-      await fetch(
-
-        "/api/admin/import",
-
-        {
-
-          method:"POST",
-
-          headers:{
-
-            "Content-Type":
-            "application/json"
-
-          },
-
-
-          body:JSON.stringify({
-
-            title:importTitle
-
-          })
-
-        }
-
-      );
-
-
-
-    const data =
-      await res.json();
-
-
-
-
-    if(data.title){
-
-
-      setForm({
-
-        ...form,
-
-        title:data.title,
-
-        description:data.description,
-
-        poster:data.poster,
-
-        backdrop:data.backdrop,
-
-        year:data.year
-
-      });
-
-
-
-      setMessage(
-        "Movie information imported!"
-      );
-
-
-    } else {
-
-
-      setMessage(
-        "Movie not found"
-      );
-
-
-    }
-
-
-  }
-
-
-
-
-
-
-
-
-
-  async function addMovie(){
-
-
-    const res =
-      await fetch(
-
-        "/api/admin/movies",
-
-        {
-
-          method:"POST",
-
-          headers:{
-
-            "Content-Type":
-            "application/json"
-
-          },
-
-
-          body:
-          JSON.stringify(form)
-
-        }
-
-      );
-
-
-
-
-
-    if(res.ok){
-
-
-      setMessage(
-        "Movie added!"
-      );
-
-
-      setForm({
-
-        title:"",
-        poster:"",
-        backdrop:"",
-        videoUrl:"",
-        description:"",
-        category:"",
-        year:""
-
-      });
-
-
-      loadMovies();
-
-
-    }
-
-
-  }
-
-
-
-
-
-
-
-
-  async function deleteMovie(
-    id:string
-  ){
-
-
-    await fetch(
-
-      `/api/admin/movies?id=${id}`,
-
-      {
-
-        method:"DELETE"
-
-      }
-
-    );
-
-
-    loadMovies();
-
-
-  }
-
-
-
-
-
-
-
-
-
-  async function updateMovie(
-    movie:Movie,
-    type:"featured"|"published"
-  ){
-
-
-    await fetch(
-
-      "/api/admin/movies",
-
-      {
-
-        method:"PATCH",
-
-        headers:{
-
-          "Content-Type":
-          "application/json"
-
-        },
-
-
-        body:JSON.stringify({
-
-          id:movie.id,
-
-
-          featured:
-
-          type==="featured"
-
-          ? !movie.featured
-
-          : movie.featured,
-
-
-
-          published:
-
-          type==="published"
-
-          ? !movie.published
-
-          : movie.published
-
-
-        })
-
-      }
-
-    );
-
-
-
-    loadMovies();
-
-
-  }
-
-
-
-
-
-
+  const publishedCount =
+    await prisma.movie.count({
+      where:{
+        published:true,
+      },
+    });
+
+
+  const views =
+    await prisma.movie.aggregate({
+      _sum:{
+        views:true,
+      },
+    });
+
+
+  const latestMovies =
+    await prisma.movie.findMany({
+
+      orderBy:{
+        createdAt:"desc",
+      },
+
+      take:6,
+
+      select:{
+        id:true,
+        title:true,
+        poster:true,
+        year:true,
+      },
+
+    });
 
 
 
   return (
 
-    <main className="
-    min-h-screen
-    bg-black
-    text-white
-    p-6
-    md:p-12
-    ">
-
-
-      <h1 className="
-      text-5xl
-      font-black
-      mb-10
-      ">
-
-        NIPFLIX ADMIN
-
-      </h1>
+    <main className="space-y-10">
 
 
 
-
-
-
-
-
-      <section className="
-      bg-neutral-900
-      p-6
-      rounded-xl
-      max-w-2xl
-      mb-10
-      ">
-
-
-        <h2 className="
-        text-3xl
-        font-black
-        mb-5
-        ">
-
-          Import Movie
-
-        </h2>
-
-
-
-        <input
-
-        placeholder="Movie name"
-
-        value={importTitle}
-
-        onChange={
-          e=>setImportTitle(
-            e.target.value
-          )
-        }
-
+      <section
         className="
-        w-full
-        bg-black
-        p-3
-        rounded-lg
-        mb-4
+        rounded-3xl
+        bg-neutral-950
+        border
+        border-white/10
+        p-10
         "
-
-        />
-
-
-
-        <button
-
-        onClick={importMovie}
-
-        className="
-        bg-blue-600
-        px-6
-        py-3
-        rounded-lg
-        font-black
-        "
-
-        >
-
-          Import
-
-        </button>
-
-
-      </section>
-
-
-
-
-
-
-
-
-
-      <section className="
-      bg-neutral-900
-      p-6
-      rounded-xl
-      max-w-2xl
-      mb-12
-      ">
-
-
-      <h2 className="
-      text-3xl
-      font-black
-      mb-5
-      ">
-
-      Add Movie
-
-      </h2>
-
-
-
-
-
-      {[
-        ["title","Title"],
-        ["poster","Poster URL"],
-        ["backdrop","Backdrop URL"],
-        ["videoUrl","Video URL"],
-        ["category","Category"],
-        ["year","Year"]
-
-      ].map(item=>(
-
-
-        <input
-
-        key={item[0]}
-
-        placeholder={item[1]}
-
-        value={
-          form[item[0] as keyof typeof form]
-        }
-
-
-        onChange={
-          e=>
-          update(
-            item[0],
-            e.target.value
-          )
-        }
-
-
-        className="
-        w-full
-        bg-black
-        p-3
-        rounded-lg
-        mb-4
-        "
-
-        />
-
-
-      ))}
-
-
-
-
-
-
-
-      <textarea
-
-      placeholder="Description"
-
-      value={form.description}
-
-      onChange={
-        e=>
-        update(
-          "description",
-          e.target.value
-        )
-      }
-
-      className="
-      w-full
-      bg-black
-      p-3
-      rounded-lg
-      mb-4
-      "
-
-      />
-
-
-
-
-
-
-      <button
-
-      onClick={addMovie}
-
-      className="
-      bg-red-600
-      px-8
-      py-3
-      rounded-lg
-      font-black
-      "
-
       >
 
-      Add Movie
+        <p className="
+        text-red-500
+        tracking-[0.4em]
+        font-black
+        ">
 
-      </button>
+          NIPFLIX STUDIO
+
+        </p>
 
 
+        <h1 className="
+        mt-6
+        text-6xl
+        md:text-7xl
+        font-black
+        ">
+
+          Welcome Back Admin
+
+        </h1>
 
 
-      <p className="
-      text-green-400
-      mt-4
-      ">
+        <p className="
+        mt-5
+        text-gray-400
+        text-xl
+        ">
 
-      {message}
+          Control your entire streaming platform from one place.
 
-      </p>
-
+        </p>
 
 
       </section>
@@ -620,192 +122,220 @@ export default function AdminPage(){
 
 
 
-
-
-      <section>
-
-
-      <h2 className="
-      text-3xl
-      font-black
-      mb-6
-      ">
-
-      Movie Library
-
-      </h2>
-
-
-
-
-
-      <div className="
-      grid
-      md:grid-cols-3
-      gap-6
-      ">
-
-
-      {movies.map(movie=>(
-
-
-        <div
-
-        key={movie.id}
-
+      <section
         className="
-        bg-neutral-900
-        rounded-xl
-        overflow-hidden
-        p-4
+        grid
+        grid-cols-2
+        md:grid-cols-3
+        xl:grid-cols-6
+        gap-5
         "
+      >
 
-        >
-
-
-        <img
-
-        src={movie.poster}
-
-        className="
-        w-full
-        h-80
-        object-cover
-        rounded-lg
-        "
-
+        <Stat
+          title="Movies"
+          value={movieCount}
+          color="bg-red-600"
         />
 
+        <Stat
+          title="Users"
+          value={userCount}
+          color="bg-blue-600"
+        />
+
+        <Stat
+          title="Views"
+          value={views._sum.views || 0}
+          color="bg-green-600"
+        />
+
+        <Stat
+          title="Featured"
+          value={featuredCount}
+          color="bg-yellow-500 text-black"
+        />
+
+        <Stat
+          title="Available"
+          value={availableCount}
+          color="bg-purple-600"
+        />
+
+        <Stat
+          title="Published"
+          value={publishedCount}
+          color="bg-neutral-800"
+        />
+
+      </section>
 
 
-        <h3 className="
-        text-xl
-        font-black
-        mt-4
-        ">
-
-        {movie.title}
-
-        </h3>
 
 
 
-        <p>
-
-        {movie.published
-        ? "🟢 Published"
-        : "🔴 Hidden"}
-
-        </p>
 
 
 
-        <p>
-
-        {movie.featured
-        ? "⭐ Featured"
-        : "Normal"}
-
-        </p>
-
-
-
+      <section
+        className="
+        rounded-3xl
+        bg-neutral-950
+        border
+        border-white/10
+        p-8
+        "
+      >
 
         <div className="
         flex
-        gap-2
-        flex-wrap
-        mt-4
+        justify-between
+        items-center
+        mb-6
         ">
 
-
-        <button
-
-        onClick={()=>
-          updateMovie(
-            movie,
-            "featured"
-          )
-        }
-
-        className="
-        bg-yellow-600
-        px-3
-        py-2
-        rounded
-        "
-
-        >
-
-        ⭐
-
-        </button>
+          <h2 className="
+          text-3xl
+          font-black
+          ">
+            Recently Added
+          </h2>
 
 
-
-        <button
-
-        onClick={()=>
-          updateMovie(
-            movie,
-            "published"
-          )
-        }
-
-        className="
-        bg-blue-600
-        px-3
-        py-2
-        rounded
-        "
-
-        >
-
-        👁
-
-        </button>
-
-
-
-
-        <button
-
-        onClick={()=>
-          deleteMovie(movie.id)
-        }
-
-        className="
-        bg-red-600
-        px-3
-        py-2
-        rounded
-        "
-
-        >
-
-        Delete
-
-        </button>
-
+          <Link
+            href="/admin/movies"
+            className="
+            text-red-500
+            font-bold
+            "
+          >
+            View All
+          </Link>
 
         </div>
 
 
+
+
+        <div
+          className="
+          grid
+          grid-cols-2
+          md:grid-cols-3
+          xl:grid-cols-6
+          gap-5
+          "
+        >
+
+          {latestMovies.map((movie)=>(
+
+            <Link
+              href={`/admin/movies/${movie.id}`}
+              key={movie.id}
+              className="
+              bg-neutral-900
+              rounded-2xl
+              overflow-hidden
+              "
+            >
+
+              <img
+                src={movie.poster}
+                alt={movie.title}
+                className="
+                w-full
+                h-64
+                object-cover
+                "
+              />
+
+
+              <div className="p-4">
+
+                <h3 className="
+                font-black
+                line-clamp-2
+                ">
+                  {movie.title}
+                </h3>
+
+
+                <p className="text-gray-400 mt-2">
+                  {movie.year || "N/A"}
+                </p>
+
+              </div>
+
+
+            </Link>
+
+          ))}
+
+
         </div>
-
-
-      ))}
-
-
-
-      </div>
 
 
       </section>
 
 
 
+
+
+
+
+      <AdminImportMovies />
+
+
     </main>
+
+  );
+
+}
+
+
+
+
+
+function Stat({
+
+  title,
+  value,
+  color,
+
+}:{
+
+  title:string;
+  value:number;
+  color:string;
+
+}){
+
+
+  return (
+
+    <div
+      className={`
+      rounded-3xl
+      p-6
+      ${color}
+      `}
+    >
+
+      <p className="opacity-80 text-sm">
+        {title}
+      </p>
+
+
+      <h2 className="
+      text-4xl
+      font-black
+      mt-3
+      ">
+        {value}
+      </h2>
+
+
+    </div>
 
   );
 

@@ -1,87 +1,206 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 
 export default function ContinueWatching({
-  items,
-}: {
-  items: any[];
+
+  items = [],
+
+}:{
+
+  items?: any[];
+
 }) {
 
 
-  if (!items || items.length === 0) {
+
+  if(!items || items.length === 0){
+
     return null;
+
   }
+
+
 
 
 
   return (
 
-    <section className="px-8 pb-10">
+    <section
+
+      className="
+      px-6
+      md:px-12
+      pb-12
+      "
+
+    >
 
 
-      <h2 className="text-3xl font-bold mb-5">
-        Continue Watching
+
+
+      <h2
+
+        className="
+        text-2xl
+        md:text-3xl
+        font-black
+        mb-6
+        "
+
+      >
+
+        ▶ Continue Watching
+
       </h2>
 
 
 
-      <div className="flex gap-5 overflow-x-auto">
 
 
-        {items.map((item) => (
+
+
+      <div
+
+        className="
+        flex
+        gap-6
+        overflow-x-auto
+        scrollbar-hide
+        "
+
+      >
+
+
+
+
+
+        {items.map((item:any)=>(
+
 
           <Link
 
             key={item.id}
 
             href={
-              item.mediaType === "movie"
-                ? `/movie/${item.mediaId}`
-                : `/tv/${item.mediaId}`
+
+              item.mediaType === "tv"
+
+              ?
+
+              `/tv/${item.mediaId}`
+
+              :
+
+              `/movie/${item.mediaId}`
+
             }
 
-            className="min-w-[192px] group"
+            className="
+            min-w-[190px]
+            group
+            "
 
           >
 
 
-            <div className="relative">
+
+
+
+            <div
+
+              className="
+              relative
+              overflow-hidden
+              rounded-2xl
+              bg-neutral-900
+              "
+
+            >
+
 
 
               <Image
 
                 src={
+
                   item.posterPath
-                    ? `https://image.tmdb.org/t/p/w500${item.posterPath}`
-                    : "/images/logo.png"
+
+                  ?
+
+                  item.posterPath.startsWith("http")
+
+                    ?
+
+                    item.posterPath
+
+                    :
+
+                    `https://image.tmdb.org/t/p/w500${item.posterPath}`
+
+                  :
+
+                  "/images/logo.png"
+
                 }
 
-                alt={item.title}
+                alt={item.title || "NIPFLIX"}
 
-                width={192}
+                width={200}
 
-                height={288}
+                height={300}
 
-                className="rounded-lg object-cover transition-transform duration-300 group-hover:scale-105"
+                className="
+                h-[280px]
+                w-[190px]
+                object-cover
+                transition
+                duration-500
+                group-hover:scale-110
+                "
 
               />
 
 
 
-              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gray-700">
+
+
+              <div
+
+                className="
+                absolute
+                bottom-0
+                left-0
+                right-0
+                h-2
+                bg-white/20
+                "
+
+              >
+
 
                 <div
 
-                  className="h-full bg-red-600"
+                  className="
+                  h-full
+                  bg-red-600
+                  "
 
                   style={{
-                    width: `${item.progress}%`,
+
+                    width:`${item.progress || 0}%`
+
                   }}
 
                 />
 
+
+
               </div>
+
+
 
 
             </div>
@@ -89,7 +208,18 @@ export default function ContinueWatching({
 
 
 
-            <h3 className="mt-3 font-bold">
+
+
+
+            <h3
+
+              className="
+              mt-3
+              font-bold
+              truncate
+              "
+
+            >
 
               {item.title}
 
@@ -97,15 +227,24 @@ export default function ContinueWatching({
 
 
 
+
+
           </Link>
 
+
         ))}
+
+
 
 
       </div>
 
 
+
+
+
     </section>
+
 
   );
 

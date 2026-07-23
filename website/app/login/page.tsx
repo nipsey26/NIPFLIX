@@ -1,73 +1,104 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 
-
-export default function LoginPage(){
-
-
-  const router =
-    useRouter();
+export default function LoginPage() {
 
 
-  const [email,setEmail] =
+  const router = useRouter();
+
+
+  const [email, setEmail] =
+    useState("");
+
+
+  const [password, setPassword] =
+    useState("");
+
+
+  const [message, setMessage] =
     useState("");
 
 
 
-  const [password,setPassword] =
-    useState("");
+  async function login() {
+
+
+    setMessage("");
 
 
 
-  const [message,setMessage] =
-    useState("");
+    try {
+
+
+      const response =
+        await fetch(
+          "/api/login",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+              "application/json",
+            },
+
+
+            body: JSON.stringify({
+
+              email,
+
+              password,
+
+            }),
+
+          }
+        );
 
 
 
 
-
-  async function login(){
-
-
-
-    const result =
-      await signIn(
-
-        "credentials",
-
-        {
-
-          email,
-
-          password,
-
-          redirect:false
-
-        }
-
-      );
+      const data =
+        await response.json();
 
 
 
 
-
-    if(result?.error){
-
-
-      setMessage(
-        "Invalid email or password"
-      );
+      if (!response.ok) {
 
 
-    } else {
+        setMessage(
+          data.error ||
+          "Login failed"
+        );
+
+
+        return;
+
+      }
+
+
 
 
       router.push("/");
+
+
+      router.refresh();
+
+
+
+
+    } catch(error) {
+
+
+      console.error(error);
+
+
+      setMessage(
+        "Something went wrong"
+      );
 
 
     }
@@ -83,35 +114,40 @@ export default function LoginPage(){
 
   return (
 
-    <main className="
-    min-h-screen
-    bg-black
-    text-white
-    flex
-    items-center
-    justify-center
-    p-6
-    ">
+    <main
+      className="
+      min-h-screen
+      bg-black
+      text-white
+      flex
+      items-center
+      justify-center
+      p-6
+      "
+    >
+
+
+      <div
+        className="
+        bg-neutral-900
+        p-8
+        rounded-xl
+        w-full
+        max-w-md
+        "
+      >
 
 
 
-      <div className="
-      bg-neutral-900
-      p-8
-      rounded-xl
-      w-full
-      max-w-md
-      ">
+        <h1
+          className="
+          text-4xl
+          font-black
+          mb-6
+          "
+        >
 
-
-
-        <h1 className="
-        text-4xl
-        font-black
-        mb-6
-        ">
-
-        Login to NIPFLIX
+          Login to NIPFLIX
 
         </h1>
 
@@ -119,25 +155,29 @@ export default function LoginPage(){
 
 
 
+
         <input
 
-        placeholder="Email"
+          placeholder="Email"
 
-        type="email"
+          type="email"
 
-        onChange={
-          e=>setEmail(
-            e.target.value
-          )
-        }
+          value={email}
 
-        className="
-        w-full
-        bg-black
-        p-3
-        rounded-lg
-        mb-4
-        "
+          onChange={
+            e =>
+            setEmail(
+              e.target.value
+            )
+          }
+
+          className="
+          w-full
+          bg-black
+          p-3
+          rounded-lg
+          mb-4
+          "
 
         />
 
@@ -146,29 +186,30 @@ export default function LoginPage(){
 
 
 
-
         <input
 
-        placeholder="Password"
+          placeholder="Password"
 
-        type="password"
+          type="password"
 
-        onChange={
-          e=>setPassword(
-            e.target.value
-          )
-        }
+          value={password}
 
-        className="
-        w-full
-        bg-black
-        p-3
-        rounded-lg
-        mb-4
-        "
+          onChange={
+            e =>
+            setPassword(
+              e.target.value
+            )
+          }
+
+          className="
+          w-full
+          bg-black
+          p-3
+          rounded-lg
+          mb-4
+          "
 
         />
-
 
 
 
@@ -177,19 +218,21 @@ export default function LoginPage(){
 
         <button
 
-        onClick={login}
+          onClick={login}
 
-        className="
-        w-full
-        bg-red-600
-        py-3
-        rounded-lg
-        font-black
-        "
+          className="
+          w-full
+          bg-red-600
+          py-3
+          rounded-lg
+          font-black
+          hover:bg-red-700
+          transition
+          "
 
         >
 
-        Login
+          Login
 
         </button>
 
@@ -197,14 +240,23 @@ export default function LoginPage(){
 
 
 
-        <p className="
-        text-red-400
-        mt-4
-        ">
 
-        {message}
 
-        </p>
+        {message && (
+
+          <p
+            className="
+            text-red-400
+            mt-4
+            "
+          >
+
+            {message}
+
+          </p>
+
+        )}
+
 
 
 
@@ -213,20 +265,19 @@ export default function LoginPage(){
 
         <Link
 
-        href="/register"
+          href="/register"
 
-        className="
-        block
-        mt-5
-        text-gray-300
-        "
+          className="
+          block
+          mt-5
+          text-gray-300
+          "
 
         >
 
-        Don't have an account? Register
+          Don't have an account? Register
 
         </Link>
-
 
 
 
@@ -237,5 +288,6 @@ export default function LoginPage(){
     </main>
 
   );
+
 
 }
