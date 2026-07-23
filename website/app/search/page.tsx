@@ -34,7 +34,7 @@ export default async function SearchPage({
 
 
   const localMovies =
-    getDatabaseMovies();
+   await getDatabaseMovies();
 
 
 

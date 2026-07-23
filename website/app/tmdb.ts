@@ -220,4 +220,52 @@ export async function searchMovies(
 
   return data.results || [];
 
+}export async function getTVShowDetails(
+  id:string
+){
+
+  const data =
+    await tmdbFetch(
+      `/tv/${id}?`
+    );
+
+  return data;
+
+}
+
+
+export async function getSimilarTVShows(
+  id:string
+){
+
+  const data =
+    await tmdbFetch(
+      `/tv/${id}/similar?`
+    );
+
+  return data.results || [];
+
+}
+
+
+export async function getTVShowTrailer(
+  id:string
+){
+
+  const data =
+    await tmdbFetch(
+      `/tv/${id}/videos?`
+    );
+
+
+  const videos =
+    data.results || [];
+
+
+  return videos.find(
+    (video:any) =>
+      video.type === "Trailer" &&
+      video.site === "YouTube"
+  ) || null;
+
 }
