@@ -1,15 +1,24 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import AdminMobileMenu from "./AdminMobileMenu";
+import { getCurrentUser } from "@/app/lib/auth";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const user = await getCurrentUser();
+
+
+  if (!user || user.role !== "ADMIN") {
+    redirect("/admin-login");
+  }
+
+
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-white flex">
-
-      {/* DESKTOP SIDEBAR */}
 
       <aside
         className="
@@ -39,72 +48,47 @@ export default function AdminLayout({
 
         </div>
 
+
         <nav className="flex-1 px-6 space-y-2">
 
-          <Link
-            href="/admin"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             📊 Dashboard
           </Link>
 
-          <Link
-            href="/admin/movies"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/movies" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             🎬 Movies
           </Link>
 
-          <Link
-            href="/admin/tv"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/tv" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             📺 TV Shows
           </Link>
 
-          <Link
-            href="/admin/videos"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/videos" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             🎥 Video Library
           </Link>
 
-          <Link
-            href="/admin/users"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/users" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             👥 Users
           </Link>
 
-          <Link
-            href="/admin/subscriptions"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/subscriptions" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             💳 Subscriptions
           </Link>
 
-          <Link
-            href="/admin/revenue"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/revenue" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             💰 Revenue
           </Link>
 
-          <Link
-            href="/admin/analytics"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/analytics" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             📈 Analytics
           </Link>
 
-          <Link
-            href="/admin/settings"
-            className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold"
-          >
+          <Link href="/admin/settings" className="block rounded-2xl px-5 py-4 hover:bg-red-600 transition font-bold">
             ⚙️ Settings
           </Link>
 
         </nav>
+
 
         <div className="p-6 border-t border-white/10">
 
@@ -128,7 +112,6 @@ export default function AdminLayout({
 
       </aside>
 
-      {/* MOBILE */}
 
       <div className="lg:hidden fixed top-6 left-6 right-6 z-50 flex justify-between">
 
@@ -152,7 +135,6 @@ export default function AdminLayout({
 
       </div>
 
-      {/* PAGE */}
 
       <main
         className="

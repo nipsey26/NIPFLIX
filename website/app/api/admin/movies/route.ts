@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { requireAdmin } from "@/app/lib/admin";
 
 // GET ALL MOVIES
 export async function GET() {
   try {
+
+    const admin = await requireAdmin();
+
+    if ("error" in admin) {
+      return NextResponse.json(
+        { error: admin.error },
+        { status: admin.status }
+      );
+    }
+
+
     const movies = await prisma.movie.findMany({
       orderBy: {
         createdAt: "desc",
@@ -11,7 +23,9 @@ export async function GET() {
     });
 
     return NextResponse.json(movies);
+
   } catch (error) {
+
     console.error(error);
 
     return NextResponse.json(
@@ -21,10 +35,23 @@ export async function GET() {
   }
 }
 
+
 // CREATE MOVIE
 export async function POST(request: Request) {
   try {
+
+    const admin = await requireAdmin();
+
+    if ("error" in admin) {
+      return NextResponse.json(
+        { error: admin.error },
+        { status: admin.status }
+      );
+    }
+
+
     const body = await request.json();
+
 
     const movie = await prisma.movie.create({
       data: {
@@ -44,8 +71,12 @@ export async function POST(request: Request) {
       },
     });
 
+
     return NextResponse.json(movie);
+
+
   } catch (error) {
+
     console.error(error);
 
     return NextResponse.json(

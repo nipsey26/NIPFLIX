@@ -25,7 +25,6 @@ export async function createSession(userId: string) {
 
     .sign(key);
 
-
   return token;
 
 }
@@ -41,9 +40,7 @@ export async function verifySession(token: string) {
       key
     );
 
-
     return payload;
-
 
   } catch {
 
@@ -55,14 +52,11 @@ export async function verifySession(token: string) {
 
 
 
-
 export async function getCurrentUser() {
 
   const cookieStore = await cookies();
 
-
   const session = cookieStore.get("session")?.value;
-
 
   if (!session) {
 
@@ -71,9 +65,7 @@ export async function getCurrentUser() {
   }
 
 
-
   const payload = await verifySession(session);
-
 
 
   if (!payload?.userId) {
@@ -98,10 +90,11 @@ export async function getCurrentUser() {
 
       email: true,
 
+      role: true,
+
     },
 
   });
-
 
 
   return user;

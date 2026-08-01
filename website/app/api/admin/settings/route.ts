@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { requireAdmin } from "@/app/lib/admin";
 
 
+export async function GET() {
 
-export async function GET(){
+  try {
 
-  try{
+    const admin = await requireAdmin();
+
+    if ("error" in admin) {
+      return NextResponse.json(
+        {
+          error: admin.error,
+        },
+        {
+          status: admin.status,
+        }
+      );
+    }
 
 
     let settings =
@@ -13,16 +26,12 @@ export async function GET(){
 
 
 
-    if(!settings){
-
+    if (!settings) {
 
       settings =
         await prisma.siteSettings.create({
-
-          data:{}
-
+          data: {}
         });
-
 
     }
 
@@ -32,24 +41,19 @@ export async function GET(){
 
 
 
-  }catch(error){
-
+  } catch(error) {
 
     console.error(error);
 
 
     return NextResponse.json(
-
       {
-        error:"Could not load settings"
+        error: "Could not load settings"
       },
-
       {
-        status:500
+        status: 500
       }
-
     );
-
 
   }
 
@@ -57,16 +61,24 @@ export async function GET(){
 
 
 
-
-
-
-
 export async function PATCH(
-  request:Request
-){
+  request: Request
+) {
 
+  try {
 
-  try{
+    const admin = await requireAdmin();
+
+    if ("error" in admin) {
+      return NextResponse.json(
+        {
+          error: admin.error,
+        },
+        {
+          status: admin.status,
+        }
+      );
+    }
 
 
     const body =
@@ -79,34 +91,23 @@ export async function PATCH(
 
 
 
+    const settings = existing
 
-    const settings =
+      ? await prisma.siteSettings.update({
 
-      existing
+          where: {
+            id: existing.id
+          },
 
-      ?
+          data: body
 
-      await prisma.siteSettings.update({
+        })
 
-        where:{
-          id:existing.id
-        },
+      : await prisma.siteSettings.create({
 
-        data:body
+          data: body
 
-      })
-
-
-      :
-
-      await prisma.siteSettings.create({
-
-        data:body
-
-      });
-
-
-
+        });
 
 
 
@@ -114,25 +115,19 @@ export async function PATCH(
 
 
 
-  }catch(error){
-
+  } catch(error) {
 
     console.error(error);
 
 
-
     return NextResponse.json(
-
       {
-        error:"Could not update settings"
+        error: "Could not update settings"
       },
-
       {
-        status:500
+        status: 500
       }
-
     );
-
 
   }
 

@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
+import { requireAdmin } from "@/app/lib/admin";
 
 
 export async function POST(request: Request) {
 
   try {
+
+    const admin = await requireAdmin();
+
+    if ("error" in admin) {
+      return NextResponse.json(
+        {
+          error: admin.error,
+        },
+        {
+          status: admin.status,
+        }
+      );
+    }
 
 
     const body = await request.json();
@@ -20,20 +34,18 @@ export async function POST(request: Request) {
 
 
 
-    if(!apiKey){
+    if (!apiKey) {
 
       return NextResponse.json(
         {
-          error:"Missing TMDB API key"
+          error: "Missing TMDB API key"
         },
         {
-          status:500
+          status: 500
         }
       );
 
     }
-
-
 
 
 
@@ -55,32 +67,25 @@ export async function POST(request: Request) {
 
 
 
-
-
     let imported = 0;
 
 
 
-
-
-    for(const movie of movies){
-
+    for (const movie of movies) {
 
 
       const exists =
         await prisma.movie.findUnique({
 
-          where:{
-            tmdbId:String(movie.id)
+          where: {
+            tmdbId: String(movie.id)
           }
 
         });
 
 
 
-
-
-      if(exists){
+      if (exists) {
 
         continue;
 
@@ -88,93 +93,75 @@ export async function POST(request: Request) {
 
 
 
-
-
       await prisma.movie.create({
 
-        data:{
-
+        data: {
 
           title:
-          movie.title,
-
+            movie.title,
 
 
           description:
-          movie.overview || "",
-
+            movie.overview || "",
 
 
           poster:
-          `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-
+            `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
 
 
           backdrop:
-          movie.backdrop_path
-          ?
-          `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-          :
-          "",
+            movie.backdrop_path
+              ?
+              `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+              :
+              "",
 
 
-
-          trailerUrl:null,
-
+          trailerUrl: null,
 
 
-          videoUrl:null,
-
+          videoUrl: null,
 
 
           category:
-          "Movie",
-
+            "Movie",
 
 
           year:
-          movie.release_date
-          ?
-          Number(movie.release_date.slice(0,4))
-          :
-          null,
-
+            movie.release_date
+              ?
+              Number(movie.release_date.slice(0, 4))
+              :
+              null,
 
 
           tmdbId:
-          String(movie.id),
-
+            String(movie.id),
 
 
           sourceType:
-          "tmdb",
+            "tmdb",
 
 
-
-          available:false,
-
+          available: false,
 
 
-          published:true,
-
+          published: true,
 
         }
 
       });
 
 
-
       imported++;
-
 
     }
 
 
 
-
     return NextResponse.json({
 
-      success:true,
+      success: true,
 
       imported,
 
@@ -182,26 +169,20 @@ export async function POST(request: Request) {
 
 
 
-
-
-  } catch(error){
+  } catch (error) {
 
 
     console.error(error);
 
 
     return NextResponse.json(
-
       {
-        error:"Import failed"
+        error: "Import failed"
       },
-
       {
-        status:500
+        status: 500
       }
-
     );
-
 
   }
 
