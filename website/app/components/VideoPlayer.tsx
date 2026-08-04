@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function VideoPlayer({
   videoUrl,
@@ -10,8 +10,46 @@ export default function VideoPlayer({
   title: string;
 }) {
 
-
   const [playing, setPlaying] = useState(false);
+
+  const youtubeEmbed = useMemo(() => {
+
+    if (!videoUrl) return null;
+
+    try {
+
+      if (videoUrl.includes("youtu.be/")) {
+
+        const id =
+          videoUrl
+            .split("youtu.be/")[1]
+            .split("?")[0];
+
+        return `https://www.youtube.com/embed/${id}?autoplay=1`;
+
+      }
+
+      if (videoUrl.includes("youtube.com/watch")) {
+
+        const url = new URL(videoUrl);
+
+        const id = url.searchParams.get("v");
+
+        if (!id) return null;
+
+        return `https://www.youtube.com/embed/${id}?autoplay=1`;
+
+      }
+
+    } catch {
+
+      return null;
+
+    }
+
+    return null;
+
+  }, [videoUrl]);
 
 
 
@@ -47,12 +85,7 @@ export default function VideoPlayer({
 
   return (
 
-    <section
-      className="
-      mt-12
-      "
-    >
-
+    <section className="mt-12">
 
       <h2
         className="
@@ -61,11 +94,8 @@ export default function VideoPlayer({
         mb-6
         "
       >
-
         Watch {title}
-
       </h2>
-
 
 
 
@@ -78,8 +108,6 @@ export default function VideoPlayer({
         shadow-2xl
         "
       >
-
-
 
         {!playing && (
 
@@ -99,7 +127,6 @@ export default function VideoPlayer({
 
           >
 
-
             <span
               className="
               w-20
@@ -113,11 +140,8 @@ export default function VideoPlayer({
               font-black
               "
             >
-
               ▶
-
             </span>
-
 
           </button>
 
@@ -125,10 +149,25 @@ export default function VideoPlayer({
 
 
 
+        {playing && youtubeEmbed && (
+
+          <iframe
+
+            src={youtubeEmbed}
+
+            className="w-full aspect-video"
+
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+
+            allowFullScreen
+
+          />
+
+        )}
 
 
 
-        {playing && (
+        {playing && !youtubeEmbed && (
 
           <video
 
@@ -136,10 +175,9 @@ export default function VideoPlayer({
 
             autoPlay
 
-            className="
-            w-full
-            aspect-video
-            "
+            playsInline
+
+            className="w-full aspect-video"
 
           >
 
@@ -149,11 +187,7 @@ export default function VideoPlayer({
 
         )}
 
-
-
       </div>
-
-
 
     </section>
 

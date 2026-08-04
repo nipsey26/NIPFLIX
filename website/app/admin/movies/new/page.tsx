@@ -8,20 +8,22 @@ export default function NewMoviePage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const [form, setForm] = useState({
 
-    title: "",
-    description: "",
-    poster: "",
-    backdrop: "",
-    videoUrl: "",
-    trailerUrl: "",
-    category: "",
-    year: "",
-    available: false,
-    featured: false,
-    published: true,
+    title:"",
+    description:"",
+    poster:"",
+    backdrop:"",
+    videoUrl:"",
+    trailerUrl:"",
+    category:"",
+    year:"",
+    teraboxUrl:"",
+    available:false,
+    featured:false,
+    published:true,
 
   });
 
@@ -32,46 +34,56 @@ export default function NewMoviePage() {
     value:any
   ){
 
-    setForm({
-      ...form,
-      [key]: value,
-    });
+    setForm(prev=>({
+      ...prev,
+      [key]:value,
+    }));
 
   }
-
 
 
 
   async function saveMovie(){
 
     setLoading(true);
+    setMessage("");
+
+    try{
 
 
-    const res = await fetch(
-      "/api/admin/movies",
-      {
-        method:"POST",
+      const res =
+      await fetch(
+        "/api/admin/movies",
+        {
+          method:"POST",
 
-        headers:{
-          "Content-Type":"application/json",
-        },
+          headers:{
+            "Content-Type":"application/json",
+          },
 
-        body:JSON.stringify(form),
+          body:JSON.stringify(form),
+
+        }
+      );
+
+
+
+      if(res.ok){
+
+        router.push("/admin/movies");
+        router.refresh();
+
+      }else{
+
+        setMessage("Failed creating movie");
 
       }
-    );
 
 
 
-    if(res.ok){
+    }catch{
 
-      router.push("/admin/movies");
-
-      router.refresh();
-
-    }else{
-
-      alert("Failed creating movie");
+      setMessage("Error creating movie");
 
     }
 
@@ -86,20 +98,12 @@ export default function NewMoviePage() {
 
   return (
 
-    <main className="
-    space-y-8
-    ">
+    <main className="space-y-8">
 
 
-      <h1 className="
-      text-5xl
-      font-black
-      ">
-
+      <h1 className="text-5xl font-black">
         Add New Movie
-
       </h1>
-
 
 
 
@@ -115,206 +119,99 @@ export default function NewMoviePage() {
 
 
 
-
-
         <input
           placeholder="Movie title"
           value={form.title}
-          onChange={
-            e=>update("title",e.target.value)
-          }
-          className="
-          w-full
-          bg-black
-          border
-          border-white/20
-          rounded-xl
-          px-5
-          py-4
-          "
+          onChange={e=>update("title",e.target.value)}
+          className="input"
         />
-
-
-
 
 
         <textarea
           placeholder="Description"
           value={form.description}
-          onChange={
-            e=>update("description",e.target.value)
-          }
-          className="
-          w-full
-          h-40
-          bg-black
-          border
-          border-white/20
-          rounded-xl
-          px-5
-          py-4
-          "
+          onChange={e=>update("description",e.target.value)}
+          className="input h-40"
         />
-
-
-
 
 
 
         <input
           placeholder="Poster URL"
           value={form.poster}
-          onChange={
-            e=>update("poster",e.target.value)
-          }
-          className="
-          w-full
-          bg-black
-          border
-          border-white/20
-          rounded-xl
-          px-5
-          py-4
-          "
+          onChange={e=>update("poster",e.target.value)}
+          className="input"
         />
-
-
-
 
 
 
         <input
           placeholder="Backdrop URL"
           value={form.backdrop}
-          onChange={
-            e=>update("backdrop",e.target.value)
-          }
-          className="
-          w-full
-          bg-black
-          border
-          border-white/20
-          rounded-xl
-          px-5
-          py-4
-          "
+          onChange={e=>update("backdrop",e.target.value)}
+          className="input"
         />
-
-
-
 
 
 
         <input
           placeholder="Video URL"
           value={form.videoUrl}
-          onChange={
-            e=>update("videoUrl",e.target.value)
-          }
-          className="
-          w-full
-          bg-black
-          border
-          border-white/20
-          rounded-xl
-          px-5
-          py-4
-          "
+          onChange={e=>update("videoUrl",e.target.value)}
+          className="input"
         />
 
 
 
+        <input
+          placeholder="TeraBox Link (optional)"
+          value={form.teraboxUrl}
+          onChange={e=>update("teraboxUrl",e.target.value)}
+          className="input"
+        />
 
 
 
         <input
           placeholder="Trailer URL"
           value={form.trailerUrl}
-          onChange={
-            e=>update("trailerUrl",e.target.value)
-          }
-          className="
-          w-full
-          bg-black
-          border
-          border-white/20
-          rounded-xl
-          px-5
-          py-4
-          "
+          onChange={e=>update("trailerUrl",e.target.value)}
+          className="input"
         />
 
 
 
-
-
-
-        <div className="
-        grid
-        md:grid-cols-2
-        gap-5
-        ">
+        <div className="grid md:grid-cols-2 gap-5">
 
 
           <input
             placeholder="Category"
             value={form.category}
-            onChange={
-              e=>update("category",e.target.value)
-            }
-            className="
-            bg-black
-            border
-            border-white/20
-            rounded-xl
-            px-5
-            py-4
-            "
+            onChange={e=>update("category",e.target.value)}
+            className="input"
           />
-
 
 
           <input
             placeholder="Year"
             value={form.year}
-            onChange={
-              e=>update("year",e.target.value)
-            }
-            className="
-            bg-black
-            border
-            border-white/20
-            rounded-xl
-            px-5
-            py-4
-            "
+            onChange={e=>update("year",e.target.value)}
+            className="input"
           />
+
 
         </div>
 
 
 
-
-
-
-        <div className="
-        flex
-        gap-6
-        flex-wrap
-        font-bold
-        ">
+        <div className="flex gap-6 flex-wrap font-bold">
 
 
           <label>
             <input
-              type="checkbox"
-              checked={form.available}
-              onChange={
-                e=>update(
-                  "available",
-                  e.target.checked
-                )
-              }
+            type="checkbox"
+            checked={form.available}
+            onChange={e=>update("available",e.target.checked)}
             />
             {" "}Available
           </label>
@@ -323,14 +220,9 @@ export default function NewMoviePage() {
 
           <label>
             <input
-              type="checkbox"
-              checked={form.featured}
-              onChange={
-                e=>update(
-                  "featured",
-                  e.target.checked
-                )
-              }
+            type="checkbox"
+            checked={form.featured}
+            onChange={e=>update("featured",e.target.checked)}
             />
             {" "}Featured
           </label>
@@ -339,60 +231,45 @@ export default function NewMoviePage() {
 
           <label>
             <input
-              type="checkbox"
-              checked={form.published}
-              onChange={
-                e=>update(
-                  "published",
-                  e.target.checked
-                )
-              }
+            type="checkbox"
+            checked={form.published}
+            onChange={e=>update("published",e.target.checked)}
             />
             {" "}Published
           </label>
-
 
 
         </div>
 
 
 
-
-
-
         <button
-
           onClick={saveMovie}
-
           disabled={loading}
-
           className="
           bg-red-600
-          hover:bg-red-700
+          rounded-2xl
           px-10
           py-5
-          rounded-2xl
           font-black
           text-xl
           "
-
         >
 
-          {
-            loading
-            ?
-            "Saving..."
-            :
-            "Create Movie"
-          }
-
+          {loading ? "Saving..." : "Create Movie"}
 
         </button>
 
 
+        {message && (
+          <p className="text-red-400 font-bold">
+            {message}
+          </p>
+        )}
+
+
 
       </div>
-
 
 
     </main>
